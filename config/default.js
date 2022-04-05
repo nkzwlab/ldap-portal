@@ -1,8 +1,9 @@
 module.exports = {
   ldapOption: {
-    url: 'ldap://ldap.hirano.work',
+    url: process.env.LDAP_URI,
   },
-  domain: 'dc=hirano,dc=work',
+  domain: process.env.LDAP_DOMAIN,
   secret: process.env.SECRET,
   adminPassword: process.env.PASSWORD,
+  adminCN: process.env.ADMINCN
 };
