@@ -51,7 +51,7 @@ module.exports = (logger)=>{
   });
 
   router.post('/pubkey', authed, async (req, res, next)=>{
-    const {pubkey} = req.body;
+    const pubkey = req.body.pubkey.trim();
     try {
       await lib.ldap.addPubkey(req.userID, pubkey);
       res.json({ok: true});
@@ -62,7 +62,6 @@ module.exports = (logger)=>{
 
   router.delete('/pubkey', authed, async (req, res, next)=>{
     const {pubkey} = req.body;
-    console.log(pubkey);
     try {
       await lib.ldap.delPubkey(req.userID, pubkey);
       res.json({ok: true});
