@@ -73,3 +73,7 @@ typings/
 
 # Serverless directories
 .serverless
+
+
+# TLS Secrets
+/https-portal/certs
