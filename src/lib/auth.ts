@@ -1,3 +1,7 @@
+export type TokenContent = {
+  userID: string;
+};
+
 export const parseBearer = (authorizaton: string): string | null => {
   const bearerText = "Bearer ";
   if (!authorizaton.startsWith(bearerText)) {
