@@ -21,3 +21,23 @@ export const verifyToken = (jwtString: string): Promise<Payload> => {
 
   return promise;
 };
+
+export const signToken = (userID: string): Promise<string> => {
+  const payload: Payload = {
+    userID,
+  };
+
+  const promise = new Promise<string>((resolve, reject) => {
+    jwt.sign(payload, env.secret, {}, (err, token) => {
+      if (err !== null) {
+        reject(err);
+      } else if (typeof token === "undefined") {
+        reject(new Error("cloud not generate token"));
+      } else {
+        resolve(token);
+      }
+    });
+  });
+
+  return promise;
+};
