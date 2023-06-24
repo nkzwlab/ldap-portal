@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt_decode from "jwt-decode";
 
-import { parseBearer } from "./lib/auth";
+import { parseBearer, verifyToken } from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
 
-export function middleware(req: NextRequest) {
+export const HEADER_USERID = "X-User-Id";
+
+export async function middleware(req: NextRequest) {
   const authorization = req.headers.get("Authorization");
 
   if (authorization == null) {
@@ -18,14 +19,18 @@ export function middleware(req: NextRequest) {
     const err = new Error("Unauthorized");
     return new NextResponse(null, { status: statusUnauthorized });
   }
+
   try {
-    const { userID } = jwt_decode(token, config.secret);
-    req.userID = userID;
-    return next();
-  } catch (_) {
-    const err = new Error("Invalid token");
-    err.status = 400;
-    return next(err);
+    const { userID } = await verifyToken(token);
+    const headers = new Headers(req.headers);
+    headers.set(HEADER_USERID, userID);
+
+    return NextResponse.next({
+      headers,
+    });
+  } catch (e) {
+    console.error(`Unauthorized: ${e}`);
+    return new NextResponse(null, { status: statusUnauthorized });
   }
 }
 
