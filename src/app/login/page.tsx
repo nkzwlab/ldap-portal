@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import * as React from "react";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -9,7 +10,7 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
-import axios from "axios";
+import { useRouter } from "next/navigation";
 
 import styles from "./login.module.css";
 
@@ -27,22 +28,32 @@ export default function Login() {
     userID: "",
     password: "",
   });
+
+  const router = useRouter();
+
   const login: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     const { userID, password } = state;
+
+    setState({ ...state, progress: true });
+
     try {
-      setState({ ...state, progress: true });
       const { data } = await axios.post("/api/auth", { userID, password });
+
       if (data.ok) {
-        window.localStorage.setItem("token", data.token);
-        this.props.history.push("/");
+        router.replace("/");
       }
-      setState({ ...state, progress: false });
     } catch (e) {
       const err = e as any;
+
       setState({
         ...state,
         err: err.response ? err.response.data.message : err.message,
+        progress: false,
+      });
+    } finally {
+      setState({
+        ...state,
         progress: false,
       });
     }
