@@ -22,6 +22,19 @@ class Config {
   get adminCN(): string {
     return this.getEnv("ADMIN_CN");
   }
+  get nodeEnv(): string {
+    const nodeEnv = this.getEnv("NODE_ENV");
+    return nodeEnv;
+  }
+  get isProduction(): boolean {
+    return this.nodeEnv === "production";
+  }
+  get isTest(): boolean {
+    return this.nodeEnv === "test";
+  }
+  get isDev(): boolean {
+    return !this.isProduction;
+  }
 }
 
 export const env = new Config();
