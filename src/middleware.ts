@@ -1,24 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { parseBearer, verifyToken } from "./lib/auth";
+import { COOKIE_NAME_TOKEN, HEADER_USERID, verifyToken } from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
 
-export const HEADER_USERID = "X-User-Id";
-
 export async function middleware(req: NextRequest) {
-  const authorization = req.headers.get("Authorization");
+  const cookie = req.cookies.get(COOKIE_NAME_TOKEN);
 
-  if (authorization == null) {
+  if (typeof cookie === "undefined") {
     return new NextResponse(null, { status: statusUnauthorized });
   }
 
-  const token = parseBearer(authorization);
-
-  if (token == null) {
-    const err = new Error("Unauthorized");
-    return new NextResponse(null, { status: statusUnauthorized });
-  }
+  const token = cookie.value;
 
   try {
     const { userID } = await verifyToken(token);
