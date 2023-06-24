@@ -1,6 +1,7 @@
 import { serialize } from "cookie";
 import { NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "./env";
 
 export const HEADER_SET_COOKIE = "Set-Cookie";
 
@@ -11,7 +12,7 @@ export const setCookie = (
 ): void => {
   const serialized = serialize(name, value, {
     httpOnly: true,
-    secure: true,
+    secure: env.isProduction,
     path: "/",
   });
 
