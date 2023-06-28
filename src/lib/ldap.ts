@@ -1,4 +1,9 @@
-import ldap, { createClient, Change, Client as LdapClient } from "ldapjs";
+import ldap, {
+  createClient,
+  Change,
+  Client as LdapClient,
+  SearchCallbackResponse,
+} from "ldapjs";
 import { equal } from "assert";
 
 import { env } from "./env";
@@ -18,36 +23,16 @@ export async function auth(userID: string, password: string) {
 }
 
 export async function getShell(userID: string) {
-  const ldapClient = createClient(ldapOption);
+  const client = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
+
   try {
-    await bindAsAdmin(ldapClient);
-    const shell = await new Promise((resolve, reject) => {
-      ldapClient.search(
-        `uid=${userID},ou=People,${domain}`,
-        { attributes: "loginShell" },
-        (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            let shells: string[] = [];
-            res.on("searchEntry", (entry) => {
-              if (entry.attributes[0] != null) {
-                shells = [...shells, ...(entry.attributes[0].vals as string[])];
-              }
-            });
-            res.on("end", () => {
-              equal(1, shells.length);
-              resolve(shells[0]);
-            });
-          }
-        }
-      );
-    });
-    return shell;
+    await bindAsAdmin(client);
+    return await getAttribute(client, base, "loginShell");
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 }
 
@@ -85,35 +70,15 @@ export async function setShell(
 }
 
 export async function getPubkey(userID: string) {
-  const ldapClient = createClient(ldapOption);
+  const client = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
   try {
-    await bindAsAdmin(ldapClient);
-    const pubkey = await new Promise((resolve, reject) => {
-      ldapClient.search(
-        `uid=${userID},ou=People,${domain}`,
-        { attributes: "sshPublicKey" },
-        (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            let pubkeys: string[] = [];
-            res.on("searchEntry", (entry) => {
-              if (entry.attributes[0] != null) {
-                pubkeys = entry.attributes[0].vals as string[];
-              }
-            });
-            res.on("end", () => {
-              resolve(pubkeys);
-            });
-          }
-        }
-      );
-    });
-    return pubkey;
+    await bindAsAdmin(client);
+    return await getAttribute(client, base, "sshPublickey");
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 }
 
@@ -296,13 +261,50 @@ function unbind(ldapClient: LdapClient): Promise<boolean> {
   });
 }
 
+// Promisify the get ldap attribtue
+async function getAttribute(
+  client: LdapClient,
+  base: string,
+  attributeName: string
+) {
+  return new Promise((resolve, reject) => {
+    client.search(base, { attributes: attributeName }, (err, res) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      let values: string[] = [];
+
+      res.on("searchEntry", (entry) => {
+        for (const { vals } of entry.attributes) {
+          // vals is type of `string | string[]`
+          if (typeof vals === "string") {
+            values.push(vals);
+          } else {
+            values.concat(vals);
+          }
+        }
+      });
+
+      res.on("error", (err) => {
+        reject(err);
+      });
+
+      res.on("end", () => {
+        resolve(values);
+      });
+    });
+  });
+}
+
 async function changePassword(
   client: LdapClient,
   userID: string,
   oldPassword: string,
   newPassword: string
 ) {
-  var filter = `(uid=${userID})`;
+  const filter = `(uid=${userID})`;
 
   function encodePassword(password: string) {
     return Buffer.from('"' + password + '"', "utf16le").toString();
