@@ -11,6 +11,14 @@ import { exec } from "child_process";
 
 const { ldapOption, domain, adminCN, password: adminPassword } = env;
 
+const ATTRIBUTE_PUBKEY = "sshPublicKey";
+const ATTRIBUTE_SHELL = "loginShell";
+const ATTRIBUTE_PASSWORD = "unicodePwd";
+
+const OPERATION_REPLATE = "replace";
+const OPERATION_ADD = "add";
+const OPERATION_DELETE = "delete";
+
 export async function auth(userID: string, password: string) {
   const ldapClient = createClient(ldapOption);
   try {
