@@ -296,7 +296,6 @@ function unbind(ldapClient: LdapClient): Promise<boolean> {
   });
 }
 
-/// Change password
 async function changePassword(
   client: LdapClient,
   userID: string,
@@ -360,4 +359,6 @@ async function changePassword(
       });
     }
   );
+
+  unbind(client);
 }
