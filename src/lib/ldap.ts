@@ -1,4 +1,4 @@
-import { createClient, Change, Client as LdapClient } from "ldapjs";
+import ldap, { createClient, Change, Client as LdapClient } from "ldapjs";
 import { equal } from "assert";
 
 import { env } from "./env";
@@ -294,4 +294,70 @@ function unbind(ldapClient: LdapClient): Promise<boolean> {
     // });
     resolve(true);
   });
+}
+
+/// Change password
+async function changePassword(
+  client: LdapClient,
+  userID: string,
+  oldPassword: string,
+  newPassword: string
+) {
+  var filter = `(uid=${userID})`;
+
+  function encodePassword(password: string) {
+    return Buffer.from('"' + password + '"', "utf16le").toString();
+  }
+
+  // not required?
+  // ldap.Attribute.settings.guid_format = ldap.GUID_FORMAT_B;
+
+  await bindAsAdmin(client);
+
+  client.search(
+    "dc=vis,dc=net",
+    {
+      filter: filter,
+      attributes: "dn",
+      scope: "sub",
+    },
+    function (err, res) {
+      res.on("searchEntry", function (entry) {
+        var userDN = entry.dn;
+        client.modify(
+          userDN,
+          [
+            new ldap.Change({
+              operation: "delete",
+              modification: {
+                unicodePwd: encodePassword(oldPassword),
+              },
+            }),
+            new ldap.Change({
+              operation: "add",
+              modification: {
+                unicodePwd: encodePassword(newPassword),
+              },
+            }),
+          ],
+          function (err) {
+            if (err) {
+              console.log(err.code);
+              console.log(err.name);
+              console.log(err.message);
+              client.unbind();
+            } else {
+              console.log("Password changed!");
+            }
+          }
+        );
+      });
+      res.on("error", function (err) {
+        console.error("error: " + err.message);
+      });
+      res.on("end", function (result) {
+        console.log("status: " + result?.status);
+      });
+    }
+  );
 }
