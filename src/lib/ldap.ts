@@ -4,7 +4,6 @@ import ldap, {
   type Change as ChangeOptions,
   Client as LdapClient,
 } from "ldapjs";
-import { equal } from "assert";
 
 import { env } from "./env";
 import { exec } from "child_process";
@@ -15,7 +14,7 @@ const ATTRIBUTE_PUBKEY = "sshPublicKey";
 const ATTRIBUTE_SHELL = "loginShell";
 const ATTRIBUTE_PASSWORD = "unicodePwd";
 
-const OPERATION_REPLATE = "replace";
+const OPERATION_REPLACE = "replace";
 const OPERATION_ADD = "add";
 const OPERATION_DELETE = "delete";
 
@@ -36,7 +35,7 @@ export async function getShell(userID: string) {
 
   try {
     await bindAsAdmin(client);
-    return await getAttribute(client, base, "loginShell");
+    return await getAttribute(client, base, ATTRIBUTE_SHELL);
   } catch (err) {
     throw err;
   } finally {
@@ -52,13 +51,7 @@ export async function setShell(
   const base = `uid=${userID},ou=People,${domain}`;
   try {
     await bindAsAdmin(client);
-    const options = {
-      operation: "replace",
-      modification: {
-        loginShell: shell,
-      },
-    };
-    await modifyAttribute(client, base, options);
+    await replaceAttribute(client, base, ATTRIBUTE_SHELL, shell);
 
     return true;
   } catch (err) {
@@ -73,7 +66,7 @@ export async function getPubkey(userID: string) {
   const base = `uid=${userID},ou=People,${domain}`;
   try {
     await bindAsAdmin(client);
-    return await getAttribute(client, base, "sshPublickey");
+    return await getAttribute(client, base, ATTRIBUTE_PUBKEY);
   } catch (err) {
     throw err;
   } finally {
@@ -87,16 +80,10 @@ export async function addPubkey(
 ): Promise<boolean> {
   const client = createClient(ldapOption);
   const base = `uid=${userID},ou=People,${domain}`;
-  const options = {
-    operation: "add",
-    modification: {
-      sshPublicKey: pubkey,
-    },
-  };
 
   try {
     await bindAsAdmin(client);
-    await modifyAttribute(client, base, options);
+    await addAttribute(client, base, ATTRIBUTE_PUBKEY, pubkey);
 
     return true;
   } catch (err) {
@@ -112,16 +99,10 @@ export async function delPubkey(
 ): Promise<boolean> {
   const client = createClient(ldapOption);
   const base = `uid=${userID},ou=People,${domain}`;
-  const options = {
-    operation: "delete",
-    modification: {
-      sshPublicKey: pubkey,
-    },
-  };
 
   try {
     await bindAsAdmin(client);
-    await modifyAttribute(client, base, options);
+    await deleteAttribute(client, base, ATTRIBUTE_PUBKEY, pubkey);
 
     return true;
   } catch (err) {
@@ -297,6 +278,54 @@ export async function modifyAttribute(
       }
     });
   });
+}
+
+export async function replaceAttribute(
+  client: LdapClient,
+  base: string,
+  attributeName: string,
+  value: string
+) {
+  const options = {
+    operation: OPERATION_REPLACE,
+    modification: {
+      [attributeName]: value,
+    },
+  };
+
+  return modifyAttribute(client, base, options);
+}
+
+export async function addAttribute(
+  client: LdapClient,
+  base: string,
+  attributeName: string,
+  value: string
+) {
+  const options = {
+    operation: OPERATION_ADD,
+    modification: {
+      [attributeName]: value,
+    },
+  };
+
+  return modifyAttribute(client, base, options);
+}
+
+export async function deleteAttribute(
+  client: LdapClient,
+  base: string,
+  attributeName: string,
+  value: string
+) {
+  const options = {
+    operation: OPERATION_DELETE,
+    modification: {
+      [attributeName]: value,
+    },
+  };
+
+  return modifyAttribute(client, base, options);
 }
 
 async function changePassword(
