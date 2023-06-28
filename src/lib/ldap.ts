@@ -1,8 +1,8 @@
 import ldap, {
   createClient,
   Change,
+  type Change as ChangeOptions,
   Client as LdapClient,
-  SearchCallbackResponse,
 } from "ldapjs";
 import { equal } from "assert";
 
@@ -40,32 +40,23 @@ export async function setShell(
   userID: string,
   shell: string
 ): Promise<boolean> {
-  const ldapClient = createClient(ldapOption);
+  const client = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
   try {
-    await bindAsAdmin(ldapClient);
-    await new Promise((resolve, reject) => {
-      ldapClient.modify(
-        `uid=${userID},ou=People,${domain}`,
-        new Change({
-          operation: "replace",
-          modification: {
-            loginShell: shell,
-          },
-        }),
-        (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(true);
-          }
-        }
-      );
-    });
+    await bindAsAdmin(client);
+    const options = {
+      operation: "replace",
+      modification: {
+        loginShell: shell,
+      },
+    };
+    await modifyAttribute(client, base, options);
+
     return true;
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 }
 
@@ -86,32 +77,24 @@ export async function addPubkey(
   userID: string,
   pubkey: string
 ): Promise<boolean> {
-  const ldapClient = createClient(ldapOption);
+  const client = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
+  const options = {
+    operation: "add",
+    modification: {
+      sshPublicKey: pubkey,
+    },
+  };
+
   try {
-    await bindAsAdmin(ldapClient);
-    await new Promise((resolve, reject) => {
-      ldapClient.modify(
-        `uid=${userID},ou=People,${domain}`,
-        new Change({
-          operation: "add",
-          modification: {
-            sshPublicKey: pubkey,
-          },
-        }),
-        (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(true);
-          }
-        }
-      );
-    });
+    await bindAsAdmin(client);
+    await modifyAttribute(client, base, options);
+
     return true;
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 }
 
@@ -119,32 +102,24 @@ export async function delPubkey(
   userID: string,
   pubkey: string
 ): Promise<boolean> {
-  const ldapClient = createClient(ldapOption);
+  const client = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
+  const options = {
+    operation: "delete",
+    modification: {
+      sshPublicKey: pubkey,
+    },
+  };
+
   try {
-    await bindAsAdmin(ldapClient);
-    await new Promise((resolve, reject) => {
-      ldapClient.modify(
-        `uid=${userID},ou=People,${domain}`,
-        new Change({
-          operation: "delete",
-          modification: {
-            sshPublicKey: pubkey,
-          },
-        }),
-        (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(true);
-          }
-        }
-      );
-    });
+    await bindAsAdmin(client);
+    await modifyAttribute(client, base, options);
+
     return true;
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 }
 
@@ -294,6 +269,24 @@ async function getAttribute(
       res.on("end", () => {
         resolve(values);
       });
+    });
+  });
+}
+
+// Promisify modifying ldap
+export async function modifyAttribute(
+  client: LdapClient,
+  base: string,
+  options: ChangeOptions
+): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const change = new Change(options);
+    client.modify(base, change, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(true);
+      }
     });
   });
 }
