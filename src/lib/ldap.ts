@@ -133,7 +133,7 @@ async function changePassword(
 
   try {
     await bindAsAdmin(client);
-    const passwd = SSHA.withRandomSalt(newPassword);
+    const { passwd } = await SSHA.withRandomSalt(newPassword);
     await replaceAttribute(client, base, ATTRIBUTE_PASSWORD, passwd);
 
     return true;
