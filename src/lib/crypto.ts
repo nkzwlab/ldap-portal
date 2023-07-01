@@ -68,6 +68,10 @@ export class SSHA {
     return encoded;
   }
 
+  get passwd(): string {
+    return `{SSHA}${this.digest}`;
+  }
+
   verify(plainPassword: string): boolean {
     const another = SSHA.withSalt(plainPassword, this.salt);
     return this.digest === another.digest;
