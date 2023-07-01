@@ -4,7 +4,23 @@ import type { NextRequest } from "next/server";
 import { COOKIE_NAME_TOKEN, HEADER_USERID, verifyToken } from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
 
+const unauthenticatedPaths = ["/_next", "/favicon.ico", "/api/auth", "/login"];
+
+const isUnauthenticatedPath = (path: string): boolean => {
+  const isUnauthenticated = unauthenticatedPaths.reduce(
+    (prev, curr) => prev || path.startsWith(curr),
+    false
+  );
+
+  return isUnauthenticated;
+};
+
 export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+  if (isUnauthenticatedPath(path)) {
+    return NextResponse.next();
+  }
+
   const cookie = req.cookies.get(COOKIE_NAME_TOKEN);
 
   if (typeof cookie === "undefined") {
@@ -26,7 +42,3 @@ export async function middleware(req: NextRequest) {
     return new NextResponse(null, { status: statusUnauthorized });
   }
 }
-
-export const config = {
-  matcher: "/api/:path*",
-};
