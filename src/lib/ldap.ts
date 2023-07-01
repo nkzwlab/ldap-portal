@@ -7,6 +7,7 @@ import ldap, {
 
 import { env } from "./env";
 import { exec } from "child_process";
+import { SSHA } from "./crypto";
 
 const { ldapOption, domain, adminCN, password: adminPassword } = env;
 
@@ -112,75 +113,34 @@ export async function delPubkey(
   }
 }
 
-export async function updatePassword(
+async function changePassword(
+  client: LdapClient,
   userID: string,
-  password: string,
+  oldPassword: string,
   newPassword: string
 ) {
-  if (typeof newPassword != "string" || newPassword.length < 8) {
-    const err = new Error("invalid new password");
-    (err as any).status = 400;
-    throw err;
-  }
-
-  const ldapClient = createClient(ldapOption);
+  const base = `uid=${userID},ou=People,${domain}`;
 
   try {
-    await bindAsUser(ldapClient, userID, password);
+    await bindAsUser(client, userID, oldPassword);
   } catch (_) {
     const err = new Error("invalid old password");
-    (err as any).status = 400;
+    (err as any).status = 401;
     throw err;
   } finally {
-    await unbind(ldapClient);
+    await unbind(client);
   }
 
-  const userPassword = await new Promise((resolve, reject) => {
-    exec(
-      shellescape(["/usr/sbin/slappasswd", "-c", "$6$%.8s", "-s", newPassword]),
-      (err, stdout, stderr) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(stdout.trim());
-        }
-      }
-    );
-  });
-
   try {
-    await bindAsAdmin(ldapClient);
-    await new Promise((resolve, reject) => {
-      ldapClient.modify(
-        `uid=${userID},ou=People,${domain}`,
-        [
-          new Change({
-            operation: "replace",
-            modification: {
-              userPassword,
-            },
-          }),
-          // new ldap.Change({
-          //   operation: 'replace',
-          //   modification: {
-          //     sambaNTPassword,
-          //   },
-          // }),
-        ],
-        (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(true);
-          }
-        }
-      );
-    });
+    await bindAsAdmin(client);
+    const passwd = SSHA.withRandomSalt(newPassword);
+    await replaceAttribute(client, base, ATTRIBUTE_PASSWORD, passwd);
+
     return true;
   } catch (err) {
     throw err;
   } finally {
-    await unbind(ldapClient);
+    unbind(client);
   }
 }
 
@@ -230,7 +190,7 @@ async function getAttribute(
   client: LdapClient,
   base: string,
   attributeName: string
-) {
+): Promise<string[]> {
   return new Promise((resolve, reject) => {
     client.search(base, { attributes: attributeName }, (err, res) => {
       if (err) {
@@ -326,71 +286,4 @@ export async function deleteAttribute(
   };
 
   return modifyAttribute(client, base, options);
-}
-
-async function changePassword(
-  client: LdapClient,
-  userID: string,
-  oldPassword: string,
-  newPassword: string
-) {
-  const filter = `(uid=${userID})`;
-
-  function encodePassword(password: string) {
-    return Buffer.from('"' + password + '"', "utf16le").toString();
-  }
-
-  // not required?
-  // ldap.Attribute.settings.guid_format = ldap.GUID_FORMAT_B;
-
-  await bindAsAdmin(client);
-
-  client.search(
-    "dc=vis,dc=net",
-    {
-      filter: filter,
-      attributes: "dn",
-      scope: "sub",
-    },
-    function (err, res) {
-      res.on("searchEntry", function (entry) {
-        var userDN = entry.dn;
-        client.modify(
-          userDN,
-          [
-            new ldap.Change({
-              operation: "delete",
-              modification: {
-                unicodePwd: encodePassword(oldPassword),
-              },
-            }),
-            new ldap.Change({
-              operation: "add",
-              modification: {
-                unicodePwd: encodePassword(newPassword),
-              },
-            }),
-          ],
-          function (err) {
-            if (err) {
-              console.log(err.code);
-              console.log(err.name);
-              console.log(err.message);
-              client.unbind();
-            } else {
-              console.log("Password changed!");
-            }
-          }
-        );
-      });
-      res.on("error", function (err) {
-        console.error("error: " + err.message);
-      });
-      res.on("end", function (result) {
-        console.log("status: " + result?.status);
-      });
-    }
-  );
-
-  unbind(client);
 }
