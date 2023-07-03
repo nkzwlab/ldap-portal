@@ -1,10 +1,6 @@
 import { webcrypto as crypto } from "crypto";
 
-import {
-  arrayBufferToBuffer,
-  bufferToArrayBuffer,
-  concatArrayBufferAndBuffer,
-} from "./buffer";
+import { arrayBufferToBuffer, bufferToArrayBuffer } from "./buffer";
 import { encodeUtf8 } from "./encode";
 
 export const SALT_LENGTH = 32;
@@ -27,14 +23,14 @@ export class SSHA {
     this.digest = digest;
   }
 
-  static withSalt(plainPassword: string, salt: string): SSHA {
-    const digest = SSHA.createDigest(plainPassword, salt);
+  static async withSalt(plainPassword: string, salt: string): Promise<SSHA> {
+    const digest = await SSHA.createDigest(plainPassword, salt);
     return new SSHA(digest, salt);
   }
 
   static async withRandomSalt(plainPassword: string): Promise<SSHA> {
     const salt = await SSHA.randomSalt();
-    const digest = SSHA.createDigest(plainPassword, salt);
+    const digest = await SSHA.createDigest(plainPassword, salt);
     return new SSHA(digest, salt);
   }
 
@@ -58,12 +54,12 @@ export class SSHA {
     return new SSHA(digest, salt);
   }
 
-  static createDigest(plainText: string, salt: string): string {
+  static async createDigest(plainText: string, salt: string): Promise<string> {
     const textBuff = encodeUtf8(plainText);
     const saltBuff = Buffer.from(salt);
     const contentBuff = Buffer.concat([textBuff, saltBuff]);
 
-    const digest = sha1Hash(contentBuff);
+    const digest = await sha1Hash(contentBuff);
     const encoded = Buffer.from(digest + salt, "binary").toString("base64");
     return encoded;
   }
@@ -72,8 +68,8 @@ export class SSHA {
     return `{SSHA}${this.digest}`;
   }
 
-  verify(plainPassword: string): boolean {
-    const another = SSHA.withSalt(plainPassword, this.salt);
+  async verify(plainPassword: string): Promise<boolean> {
+    const another = await SSHA.withSalt(plainPassword, this.salt);
     return this.digest === another.digest;
   }
 }
