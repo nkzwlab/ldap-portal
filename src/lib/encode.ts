@@ -1,4 +1,5 @@
-export const encodeUtf8 = (text: string): ArrayBuffer => {
+export const encodeUtf8 = (text: string): Buffer => {
   const encoder = new TextEncoder();
-  return encoder.encode(text);
+  const arr = encoder.encode(text);
+  return Buffer.from(arr);
 };

@@ -59,9 +59,9 @@ export class SSHA {
   }
 
   static createDigest(plainText: string, salt: string): string {
-    const textArr = encodeUtf8(plainText);
+    const textBuff = encodeUtf8(plainText);
     const saltBuff = Buffer.from(salt);
-    const contentBuff = concatArrayBufferAndBuffer(textArr, saltBuff);
+    const contentBuff = Buffer.concat([textBuff, saltBuff]);
 
     const digest = sha1Hash(contentBuff);
     const encoded = Buffer.from(digest + salt, "binary").toString("base64");
