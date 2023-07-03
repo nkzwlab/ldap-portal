@@ -60,7 +60,7 @@ export class SSHA {
     const contentBuff = Buffer.concat([textBuff, saltBuff]);
 
     const digest = await sha1Hash(contentBuff);
-    const encoded = Buffer.from(digest + salt, "binary").toString("base64");
+    const encoded = Buffer.concat([digest, saltBuff]).toString("base64");
     return encoded;
   }
 
