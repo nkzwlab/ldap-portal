@@ -9,30 +9,7 @@ import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
-const styles = {
-  root: {
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  paper: {
-    flexGrow: 1,
-    maxWidth: 450,
-    // minHeight: 500,
-    padding: 40,
-    boxSizing: "border-box",
-  },
-  userID: {
-    width: "100%",
-  },
-  password: {
-    width: "100%",
-  },
-  button: {
-    float: "right",
-  },
-};
+import styles from "./page.module.css";
 
 class Password extends React.Component {
   constructor(props) {
