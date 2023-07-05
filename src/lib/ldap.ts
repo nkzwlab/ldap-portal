@@ -13,7 +13,7 @@ const { ldapOption, domain, adminCN, password: adminPassword } = env;
 
 const ATTRIBUTE_PUBKEY = "sshPublicKey";
 const ATTRIBUTE_SHELL = "loginShell";
-const ATTRIBUTE_PASSWORD = "unicodePwd";
+const ATTRIBUTE_PASSWORD = "userPassword";
 
 const OPERATION_REPLACE = "replace";
 const OPERATION_ADD = "add";
