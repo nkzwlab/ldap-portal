@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { COOKIE_NAME_TOKEN, HEADER_USERID, verifyToken } from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
+import Login from "./app/login/page";
 
 const unauthenticatedPaths = ["/_next", "/favicon.ico", "/api/auth", "/login"];
 
@@ -21,10 +22,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const loginUrl = req.nextUrl.clone();
+  loginUrl.pathname = "/login";
+
   const cookie = req.cookies.get(COOKIE_NAME_TOKEN);
 
   if (typeof cookie === "undefined") {
-    return new NextResponse(null, { status: statusUnauthorized });
+    return NextResponse.redirect(loginUrl);
   }
 
   const token = cookie.value;
@@ -39,6 +43,6 @@ export async function middleware(req: NextRequest) {
     });
   } catch (e) {
     console.error(`Unauthorized: ${e}`);
-    return new NextResponse(null, { status: statusUnauthorized });
+    return NextResponse.redirect(loginUrl);
   }
 }
