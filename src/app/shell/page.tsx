@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import assert from "assert";
 import axios, { Axios, AxiosError } from "axios";
