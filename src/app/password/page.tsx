@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -10,7 +13,6 @@ import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import styles from "./page.module.css";
-import { useRouter } from "next/router";
 
 interface State {
   err: any;
