@@ -113,12 +113,12 @@ export async function delPubkey(
   }
 }
 
-async function changePassword(
-  client: LdapClient,
+export async function changePassword(
   userID: string,
   oldPassword: string,
   newPassword: string
 ) {
+  const client = createClient(ldapOption);
   const base = `uid=${userID},ou=People,${domain}`;
 
   try {
