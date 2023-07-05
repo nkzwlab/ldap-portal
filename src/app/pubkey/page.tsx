@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import assert from "assert";
 import axios, { AxiosError } from "axios";
 import Grid from "@mui/material/Grid";
@@ -36,19 +36,24 @@ export default function Pubkey() {
     delProgress: false,
   });
 
-  (async () => {
-    try {
-      const { data } = await axios.get("/api/pubkey");
-      assert.notEqual(null, data.pubkey);
-      setState({ ...state, pubkey: data.pubkey, loadProgress: false });
-    } catch (err) {
-      setState({
-        ...state,
-        err: err instanceof AxiosError ? err.response?.data.message : err,
-        loadProgress: false,
-      });
-    }
-  })();
+  useEffect(() => {
+    const getPubkeys = async () => {
+      try {
+        const { data } = await axios.get("/api/pubkey");
+        assert.notEqual(null, data.pubkey);
+        setState({ ...state, pubkey: data.pubkey, loadProgress: false });
+      } catch (err) {
+        setState({
+          ...state,
+          err: err instanceof AxiosError ? err.response?.data.message : err,
+          loadProgress: false,
+        });
+      }
+    };
+    getPubkeys();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function addPubkey() {
     const { inputPubkey } = state;
     try {
