@@ -1,0 +1,21 @@
+.index {
+  width: 100;
+}
+
+.pubkey {
+  min-width: 100;
+  max-width: 700;
+  overflow-wrap: break-word;
+}
+
+.pubkeyinput {
+  width: 100%;
+}
+
+.delete {
+  width: 100;
+}
+
+.add {
+  width: 100;
+}

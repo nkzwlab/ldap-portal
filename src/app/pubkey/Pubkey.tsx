@@ -14,27 +14,6 @@ import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
-const styles = {
-  root: {},
-  index: {
-    width: 100,
-  },
-  pubkey: {
-    minWidth: 100,
-    maxWidth: 700,
-    overflowWrap: "break-word",
-  },
-  pubkeyInput: {
-    width: "100%",
-  },
-  delete: {
-    width: 100,
-  },
-  add: {
-    width: 100,
-  },
-};
-
 class Pubkey extends React.Component {
   constructor(props) {
     super(props);
