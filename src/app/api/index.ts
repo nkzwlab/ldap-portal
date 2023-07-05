@@ -34,16 +34,6 @@ module.exports = (logger) => {
     }
   });
 
-  router.post("/password", authed, async (req, res, next) => {
-    const { password, newPassword } = req.body;
-    try {
-      await lib.ldap.updatePassword(req.userID, password, newPassword);
-      res.json({ ok: true });
-    } catch (err) {
-      next(err);
-    }
-  });
-
   router.use((req, res, next) => {
     const err = new Error("Not Found");
     err.status = 404;
