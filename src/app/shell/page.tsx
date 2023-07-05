@@ -67,7 +67,7 @@ export default function Shell() {
   };
 
   useEffect(() => {
-    (async () => {
+    const setCurrentShell = async () => {
       try {
         const { data } = await axios.get("/api/shell");
         assert.notEqual(null, data.shell);
@@ -84,8 +84,10 @@ export default function Shell() {
           throw err;
         }
       }
-    })();
-  });
+    };
+    setCurrentShell();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={styles.root}>
@@ -109,11 +111,7 @@ export default function Shell() {
       ) : (
         <Grid container justifyContent="center">
           <Paper className={styles.paper}>
-            <form
-              onSubmit={setShell.bind({
-                /*TODO*/
-              })}
-            >
+            <form onSubmit={setShell}>
               <Grid container spacing={24}>
                 <Grid item xs={12}>
                   <Typography gutterBottom variant="h5" align="center">
