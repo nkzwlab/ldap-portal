@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   const { shell } = await req.json();
-  if (typeof shell === "string" || shell === "") {
+  if (typeof shell !== "string" || shell === "") {
     return NextResponse.json(
       { error: "invalid shell: " + shell },
       { status: statusBadRequest }
