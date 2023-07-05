@@ -1,5 +1,9 @@
-import jwt from "jsonwebtoken";
+import * as jose from "jose";
+
 import { env } from "./env";
+
+const jwtSignAlgorithm = "HS256";
+const secret = new TextEncoder().encode(env.secret);
 
 export type Payload = {
   userID: string;
@@ -8,36 +12,41 @@ export type Payload = {
 export const COOKIE_NAME_TOKEN = "token";
 export const HEADER_USERID = "X-User-Id";
 
-export const verifyToken = (jwtString: string): Promise<Payload> => {
-  const promise = new Promise<Payload>((resolve, reject) => {
-    jwt.verify(jwtString, env.secret, {}, (err, decoded) => {
-      if (err !== null) {
-        reject(err);
-      } else {
-        resolve(decoded as Payload);
-      }
-    });
-  });
+export const verifyToken = async (jwtString: string): Promise<Payload> => {
+  const { payload } = await jose.jwtVerify(jwtString, secret);
 
-  return promise;
+  if (typeof payload["userID"] === "string") {
+    return payload as Payload;
+  } else {
+    throw new Error("userID does not exist on palyoad");
+  }
 };
 
-export const signToken = (userID: string): Promise<string> => {
+export const signToken = async (userID: string): Promise<string> => {
   const payload: Payload = {
     userID,
   };
 
-  const promise = new Promise<string>((resolve, reject) => {
-    jwt.sign(payload, env.secret, {}, (err, token) => {
-      if (err !== null) {
-        reject(err);
-      } else if (typeof token === "undefined") {
-        reject(new Error("cloud not generate token"));
-      } else {
-        resolve(token);
-      }
-    });
-  });
+  const jwt = await new jose.SignJWT(payload)
+    .setProtectedHeader({
+      alg: jwtSignAlgorithm,
+    })
+    .setIssuedAt()
+    .sign(secret);
 
-  return promise;
+  return jwt;
+};
+
+const parsePayload = (payload: unknown): Payload => {
+  const result: Payload = { userID: "" };
+  const p: any = payload;
+  for (const key of Object.keys(result) as (keyof Payload)[]) {
+    if (typeof p[key] === "undefined") {
+      throw new Error(`invalid payload: required property '${key}' is missing`);
+    }
+
+    result[key] = p[key];
+  }
+
+  return result;
 };
