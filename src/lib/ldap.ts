@@ -205,8 +205,10 @@ async function getAttribute(
           // vals is type of `string | string[]`
           if (typeof vals === "string") {
             values.push(vals);
+          } else if (typeof vals === "object" && Array.isArray(vals)) {
+            values.push(...vals);
           } else {
-            values.concat(vals);
+            console.warn("getAttributes: ignoring invalid value:", vals);
           }
         }
       });
