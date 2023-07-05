@@ -246,11 +246,10 @@ export async function replaceAttribute(
   attributeName: string,
   value: string
 ) {
+  const attribute = new ldap.Attribute({ type: attributeName, vals: value });
   const options = {
     operation: OPERATION_REPLACE,
-    modification: {
-      [attributeName]: value,
-    },
+    modification: attribute,
   };
 
   return modifyAttribute(client, base, options);
@@ -262,11 +261,10 @@ export async function addAttribute(
   attributeName: string,
   value: string
 ) {
+  const attribute = new ldap.Attribute({ type: attributeName, vals: value });
   const options = {
     operation: OPERATION_ADD,
-    modification: {
-      [attributeName]: value,
-    },
+    modification: attribute,
   };
 
   return modifyAttribute(client, base, options);
@@ -278,11 +276,10 @@ export async function deleteAttribute(
   attributeName: string,
   value: string
 ) {
+  const attribute = new ldap.Attribute({ type: attributeName, vals: value });
   const options = {
     operation: OPERATION_DELETE,
-    modification: {
-      [attributeName]: value,
-    },
+    modification: attribute,
   };
 
   return modifyAttribute(client, base, options);
