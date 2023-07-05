@@ -4,12 +4,13 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import styles from "./page.module.css";
+import { useRouter } from "next/router";
 
 interface State {
   err: any;
@@ -20,62 +21,62 @@ interface State {
 }
 
 export default function Password() {
-  const [state, setState] = useState({
+  const router = useRouter();
+
+  const [state, setState] = useState<State>({
     err: null,
     progress: false,
-    token,
     password: "",
     newPassword: "",
     confirmNewPassword: "",
   });
 
-  async function changePassword(e) {
-    e.preventDefault();
-    const { token, password, newPassword } = this.state;
-    if (
-      newPassword != this.state.confirmNewPassword ||
-      newPassword.length < 8
-    ) {
-      this.setState({ err: "invalid new password" });
+  const changePassword: React.FormEventHandler<HTMLFormElement> = async (
+    event
+  ) => {
+    event.preventDefault();
+    const { password, newPassword } = state;
+    if (newPassword != state.confirmNewPassword || newPassword.length < 8) {
+      setState({ ...state, err: "invalid new password" });
       return;
     }
     try {
-      this.setState({ progress: true });
+      setState({ ...state, progress: true });
       const { data } = await axios.post("/api/password", {
-        token,
         password,
         newPassword,
       });
       if (data.ok) {
-        this.props.history.push("/");
+        router.push("/");
       }
-      this.setState({ progress: false });
+      setState({ ...state, progress: false });
     } catch (err) {
-      this.setState({
-        err: err.response ? err.response.data.message : err.message,
+      setState({
+        ...state,
+        err: err instanceof AxiosError ? err.response?.data.message : err,
         progress: false,
       });
     }
-  }
+  };
 
   return (
-    <div className={this.props.classes.root}>
+    <div className={styles.root}>
       <Snackbar
-        open={this.state.err != null}
+        open={state.err != null}
         autoHideDuration={2000}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
         }}
         onClose={() => {
-          this.setState({ err: null });
+          setState({ ...state, err: null });
         }}
       >
-        <SnackbarContent message={this.state.err} />
+        <SnackbarContent message={state.err} />
       </Snackbar>
-      <Grid container justify="center">
-        <Paper className={this.props.classes.paper}>
-          <form onSubmit={this.changePassword.bind(this)}>
+      <Grid container justifySelf="center">
+        <Paper className={styles.paper}>
+          <form onSubmit={changePassword}>
             <Grid container spacing={24}>
               <Grid item xs={12}>
                 <Typography gutterBottom variant="h5" align="center">
@@ -85,49 +86,47 @@ export default function Password() {
               <Grid item xs={12}>
                 <TextField
                   label="Current Password"
-                  className={this.props.classes.password}
+                  className={styles.password}
                   type="password"
                   autoComplete="current-password"
                   onChange={(e) => {
-                    this.setState({ password: e.target.value });
+                    setState({ ...state, password: e.target.value });
                   }}
-                  value={this.state.password}
+                  value={state.password}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   label="New Password"
-                  className={this.props.classes.password}
+                  className={styles.password}
                   type="password"
                   autoComplete="new-password"
                   onChange={(e) => {
-                    this.setState({ newPassword: e.target.value });
+                    setState({ ...state, newPassword: e.target.value });
                   }}
                   error={
-                    this.state.newPassword.length < 8 &&
-                    this.state.newPassword.length != 0
+                    state.newPassword.length < 8 &&
+                    state.newPassword.length != 0
                   }
-                  value={this.state.newPassword}
+                  value={state.newPassword}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   label="Confirm New Password"
-                  className={this.props.classes.password}
+                  className={styles.password}
                   type="password"
                   autoComplete="new-password"
                   onChange={(e) => {
-                    this.setState({ confirmNewPassword: e.target.value });
+                    setState({ ...state, confirmNewPassword: e.target.value });
                   }}
-                  error={
-                    this.state.newPassword != this.state.confirmNewPassword
-                  }
-                  value={this.state.confirmNewPassword}
+                  error={state.newPassword != state.confirmNewPassword}
+                  value={state.confirmNewPassword}
                 />
               </Grid>
               <Grid item xs={12}>
-                {this.state.progress ? (
-                  <Grid container justify="center">
+                {state.progress ? (
+                  <Grid container justifySelf="center">
                     <CircularProgress />
                   </Grid>
                 ) : (
@@ -135,7 +134,7 @@ export default function Password() {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    className={this.props.classes.button}
+                    className={styles.button}
                   >
                     Submit
                   </Button>
