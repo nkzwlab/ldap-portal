@@ -20,3 +20,12 @@ services:
       DOMAINS: >-
         ${DEPLOY_DOMAIN} -> http://server:3000
     env_file: .env
+
+  # Redis にアカウント作成リクエストを保存する
+  redis:
+    image: redis
+    volumes:
+      - "redis-data:/data"
+
+volumes:
+  redis-data: {}
