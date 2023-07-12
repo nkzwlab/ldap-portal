@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   server:
@@ -9,8 +9,8 @@ services:
   https-portal:
     image: steveltn/https-portal:1
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+      - "443:443"
     restart: unless-stopped
     links:
       - server
