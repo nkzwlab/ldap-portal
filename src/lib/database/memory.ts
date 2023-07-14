@@ -7,16 +7,16 @@ export class InMemmoryRepository implements ApplicationRepository {
     this.records = {};
   }
 
-  addApplication(application: Application): void {
+  async addApplication(application: Application): Promise<void> {
     this.records[application.loginName] = application;
   }
 
-  getApplication(loginName: string): Application | null {
+  async getApplication(loginName: string): Promise<Application | null> {
     const application = this.records[loginName];
     return application;
   }
 
-  getApplicationByToken(token: string): Application | null {
+  async getApplicationByToken(token: string): Promise<Application | null> {
     for (const a of Object.values(this.records)) {
       if (a.token === token) {
         return a;
@@ -26,7 +26,7 @@ export class InMemmoryRepository implements ApplicationRepository {
     return null;
   }
 
-  deleteApplication(loginName: string): void {
+  async deleteApplication(loginName: string): Promise<void> {
     delete this.records[loginName];
   }
 }
