@@ -22,6 +22,15 @@ class Config {
   get adminCN(): string {
     return this.getEnv("ADMIN_CN");
   }
+  get redisUrl(): string {
+    return this.getEnv("REDIS_URL");
+  }
+  get redisUser(): string {
+    return this.getEnv("REDIS_USER");
+  }
+  get redisPassword(): string {
+    return this.getEnv("REDIS_PASSWORD");
+  }
   get nodeEnv(): string {
     const nodeEnv = this.getEnv("NODE_ENV");
     return nodeEnv;
