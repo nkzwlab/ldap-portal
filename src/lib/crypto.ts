@@ -88,3 +88,9 @@ const sha1Hash = async (buff: Buffer): Promise<Buffer> => {
   const hashBuff = arrayBufferToBuffer(hash);
   return hashBuff;
 };
+
+export const generateToken = (length: number = 32): string => {
+  const buff = secureRandomNumber(length);
+  const token = buff.toString("base64url");
+  return token;
+};
