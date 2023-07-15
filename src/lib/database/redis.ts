@@ -12,8 +12,12 @@ const APPLICATION_INDEX_NAME = `idx:${APPLICATION_INDEX_PREFIX}`;
 const APPLICATION_SCHEMA: RediSearchSchema = {
   "$.loginName": {
     type: SchemaFieldTypes.TEXT,
+    SORTABLE: true,
   },
   "$.email": {
+    type: SchemaFieldTypes.TEXT,
+  },
+  "$.passwordHash": {
     type: SchemaFieldTypes.TEXT,
   },
   "$.token": {
