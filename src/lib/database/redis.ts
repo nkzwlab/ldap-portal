@@ -26,6 +26,10 @@ const APPLICATION_SCHEMA: RediSearchSchema = {
   },
 };
 
+export type RedisConfiguration = {
+  url: string;
+};
+
 export class RedisRepository implements ApplicationRepository {
   client: ReturnType<typeof createClient>;
 
@@ -33,18 +37,26 @@ export class RedisRepository implements ApplicationRepository {
     this.client = client;
   }
 
-  static async withDefaultConfiguration(): Promise<RedisRepository> {
-    const url = env.redisUrl;
-    // const username = env.redisUser;
-    // const password = env.redisPassword;
+  static async withConfiguration({
+    url,
+  }: RedisConfiguration): Promise<RedisRepository> {
     const client = createClient({
       url,
-      //   username,
-      //   password,
     });
     await client.connect();
 
     return new RedisRepository(client);
+  }
+
+  static async withDefaultConfiguration(): Promise<RedisRepository> {
+    const url = env.redisUrl;
+    // const username = env.redisUser;
+    // const password = env.redisPassword;
+    return RedisRepository.withConfiguration({
+      url,
+      //   username,
+      //   password,
+    });
   }
 
   async makeIndex(): Promise<void> {
