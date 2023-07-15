@@ -8,6 +8,7 @@ export interface ApplicationRepository {
 export type Application = {
   loginName: string;
   email: string;
+  passwordHash: string;
   token: string;
 };
 
@@ -16,6 +17,7 @@ export const applicationFromJson = (data: unknown): Application | null => {
   const out: Application = {
     loginName: "",
     email: "",
+    passwordHash: "",
     token: "",
   };
 
