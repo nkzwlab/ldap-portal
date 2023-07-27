@@ -10,8 +10,8 @@ import {
   Button,
   Container,
   Input,
-  InputLabel,
   Stack,
+  Typography,
 } from "@mui/material";
 
 const Register: NextPage = () => {
@@ -30,39 +30,33 @@ const Register: NextPage = () => {
       <Stack
         component="form"
         onSubmit={handleSubmit(onSubmit)}
-        spacing={2}
+        spacing={4}
         sx={{ m: 2, p: 6, backgroundColor: "white" }}
       >
+        <Typography variant="h3" component={"h1"}>
+          Registration
+        </Typography>
         <Controller
           name="loginName"
           control={control}
-          render={() => (
-            <Stack>
-              <InputLabel htmlFor="loginName">Login name</InputLabel>
-              <Input id="loginName"></Input>
-            </Stack>
-          )}
+          render={() => <Input id="loginName" placeholder="Login name"></Input>}
         />
         <Controller
           name="password"
           control={control}
           render={() => (
-            <Stack>
-              <InputLabel htmlFor="password">Password</InputLabel>
-              <Input id="password" type="password"></Input>
-            </Stack>
+            <Input id="password" type="password" placeholder="Password"></Input>
           )}
         />
         <Controller
           name="passwordConfirmation"
           control={control}
           render={() => (
-            <Stack>
-              <InputLabel htmlFor="passwordConfirmation">
-                Password confirmation
-              </InputLabel>
-              <Input id="passwordConfirmation" type="password"></Input>
-            </Stack>
+            <Input
+              id="passwordConfirmation"
+              type="password"
+              placeholder="Password confirmation"
+            ></Input>
           )}
         />
         <Box alignSelf="end">
@@ -71,7 +65,6 @@ const Register: NextPage = () => {
             type="submit"
             variant="contained"
             size="medium"
-            sx={{ margin: 2 }}
           >
             Submit
           </Button>
