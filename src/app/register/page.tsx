@@ -6,13 +6,15 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Schema, schema } from "./schema";
 import {
-  Box,
+  Avatar,
   Button,
   Container,
-  Input,
+  CssBaseline,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
+import { LockOutlined } from "@mui/icons-material";
 
 const Register: NextPage = () => {
   const {
@@ -26,49 +28,76 @@ const Register: NextPage = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Stack
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        spacing={4}
-        sx={{ m: 2, p: 6, backgroundColor: "white" }}
-      >
-        <Typography variant="h3" component={"h1"}>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
+        <Avatar sx={{ backgroundColor: "secondary.main" }}>
+          <LockOutlined />
+        </Avatar>
+
+        <Typography variant="h5" component="h1">
           Registration
         </Typography>
-        <Controller
-          name="loginName"
-          control={control}
-          render={() => <Input id="loginName" placeholder="Login name"></Input>}
-        />
-        <Controller
-          name="password"
-          control={control}
-          render={() => (
-            <Input id="password" type="password" placeholder="Password"></Input>
-          )}
-        />
-        <Controller
-          name="passwordConfirmation"
-          control={control}
-          render={() => (
-            <Input
-              id="passwordConfirmation"
-              type="password"
-              placeholder="Password confirmation"
-            ></Input>
-          )}
-        />
-        <Box alignSelf="end">
-          <Button
-            fullWidth={false}
-            type="submit"
-            variant="contained"
-            size="medium"
-          >
+
+        <Stack
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          spacing={2}
+          alignItems="center"
+          width="100%"
+        >
+          {/* Text field for login name. Conrtolled by React-Hook-Form */}
+          <Controller
+            name="loginName"
+            control={control}
+            render={() => (
+              <TextField
+                id="loginName"
+                placeholder="Login name"
+                required
+                fullWidth
+                autoComplete="loginName"
+                autoFocus
+              ></TextField>
+            )}
+          />
+
+          {/* Text field for password. Controlled by React-Hook-Form */}
+          <Controller
+            name="password"
+            control={control}
+            render={() => (
+              <TextField
+                id="password"
+                type="password"
+                placeholder="Password"
+                required
+                fullWidth
+                autoComplete="password"
+              ></TextField>
+            )}
+          />
+
+          {/* Text field for password confirmation. Controlled by React-Hook-Form */}
+          <Controller
+            name="passwordConfirmation"
+            control={control}
+            render={() => (
+              <TextField
+                id="passwordConfirmation"
+                type="password"
+                placeholder="Password confirmation"
+                required
+                fullWidth
+              ></TextField>
+            )}
+          />
+
+          <Button type="submit" variant="contained" fullWidth>
             Submit
           </Button>
-        </Box>
+        </Stack>
       </Stack>
     </Container>
   );
