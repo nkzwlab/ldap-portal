@@ -32,7 +32,7 @@ export async function auth(userID: string, password: string) {
 
 export async function getShell(userID: string) {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
 
   try {
     await bindAsAdmin(client);
@@ -49,7 +49,7 @@ export async function setShell(
   shell: string
 ): Promise<boolean> {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
   try {
     await bindAsAdmin(client);
     await replaceAttribute(client, base, ATTRIBUTE_SHELL, shell);
@@ -64,7 +64,7 @@ export async function setShell(
 
 export async function getPubkey(userID: string) {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
   try {
     await bindAsAdmin(client);
     return await getAttribute(client, base, ATTRIBUTE_PUBKEY);
@@ -80,7 +80,7 @@ export async function addPubkey(
   pubkey: string
 ): Promise<boolean> {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
 
   try {
     await bindAsAdmin(client);
@@ -99,7 +99,7 @@ export async function delPubkey(
   pubkey: string
 ): Promise<boolean> {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
 
   try {
     await bindAsAdmin(client);
@@ -119,7 +119,7 @@ export async function changePassword(
   newPassword: string
 ) {
   const client = createClient(ldapOption);
-  const base = `uid=${userID},ou=People,${domain}`;
+  const base = userDN(userID);
 
   try {
     await bindAsUser(client, userID, oldPassword);
@@ -144,6 +144,10 @@ export async function changePassword(
   }
 }
 
+const userDN = (userID: string): string => {
+  return `uid=${userID},ou=People,${domain}`;
+};
+
 function bindAsAdmin(ldapClient: LdapClient): Promise<boolean> {
   return new Promise((resolve, reject) => {
     ldapClient.bind(`cn=${adminCN},${domain}`, adminPassword, (err) => {
@@ -161,8 +165,9 @@ function bindAsUser(
   userID: string,
   password: string
 ): Promise<boolean> {
+  const dn = userDN(userID);
   return new Promise((resolve, reject) => {
-    ldapClient.bind(`uid=${userID},ou=People,${domain}`, password, (err) => {
+    ldapClient.bind(dn, password, (err) => {
       if (err) {
         reject(err);
       } else {
