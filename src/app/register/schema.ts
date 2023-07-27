@@ -18,3 +18,5 @@ export const schema = z
       });
     }
   });
+
+export type Schema = z.infer<typeof schema>;
