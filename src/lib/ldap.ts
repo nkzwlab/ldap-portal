@@ -190,6 +190,22 @@ function unbind(ldapClient: LdapClient): Promise<boolean> {
   });
 }
 
+async function addEntry(
+  client: LdapClient,
+  dn: string,
+  entry: any
+): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    client.add(dn, entry, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
 // Promisify the get ldap attribtue
 async function getAttribute(
   client: LdapClient,
