@@ -1,14 +1,12 @@
-import { env } from "../../env";
 import {
   Application,
   ApplicationRepository,
   applicationFromJson,
 } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
-import { StringKeysOf, StringPropertiesOf } from "../../types";
 import { RedisRepository } from "../core";
 
-const APPLICATION_INDEX_PREFIX = "application";
+const APPLICATION_INDEX_PREFIX_NAME = "application";
 
 const APPLICATION_SCHEMA: RediSearchSchema = {
   "$.loginName": {
@@ -39,3 +37,10 @@ export class RedisApplicationRepository<S extends RediSearchSchema>
     return applicationFromJson(result.documents[0]);
   }
 }
+
+export const repository =
+  RedisApplicationRepository.withDefaultConfiguration<Application>({
+    schema: APPLICATION_SCHEMA,
+    indexKey: "loginName",
+    indexName: APPLICATION_INDEX_PREFIX_NAME,
+  });

@@ -15,3 +15,5 @@ export class InMemmoryApplicationRepository
     return null;
   }
 }
+
+export const repository = new InMemmoryApplicationRepository();
