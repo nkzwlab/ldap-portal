@@ -1,13 +1,10 @@
 import { env } from "../env";
-import {
-  Application,
-  ApplicationRepository,
-  applicationFromJson,
-} from "./interface";
+import { AbstractRepository, applicationFromJson } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
+import { RedisJSON } from "@redis/json/dist/commands";
+import { StringKeysOf, StringPropertiesOf } from "../types";
 
 const APPLICATION_INDEX_PREFIX = "application";
-const APPLICATION_INDEX_NAME = `idx:${APPLICATION_INDEX_PREFIX}`;
 
 const APPLICATION_SCHEMA: RediSearchSchema = {
   "$.loginName": {
@@ -26,45 +23,79 @@ const APPLICATION_SCHEMA: RediSearchSchema = {
   },
 };
 
-export type RedisConfiguration = {
+const toIndexPrefix = (indexName: string): string =>
+  `idx:${APPLICATION_INDEX_PREFIX}`;
+
+type RedisJSONObject = RedisJSON & object;
+
+export type RedisConfiguration<T extends RedisJSONObject> = {
   url: string;
+  schema: RediSearchSchema;
+  indexKey: StringKeysOf<T>;
+  indexName: string;
 };
 
-export class RedisRepository implements ApplicationRepository {
+export class RedisRepository<
+  T extends RedisJSONObject,
+  S extends RediSearchSchema
+> implements AbstractRepository<T>
+{
   client: ReturnType<typeof createClient>;
+  schema: S;
+  indexKey: StringKeysOf<T>;
+  indexName: string;
+  indexPrefix: string;
 
-  constructor(client: RedisRepository["client"]) {
+  constructor(
+    client: RedisRepository<T, S>["client"],
+    schema: S,
+    indexKey: RedisRepository<T, S>["indexKey"],
+    indexName: string
+  ) {
     this.client = client;
+    this.schema = schema;
+    this.indexKey = indexKey;
+    this.indexName = indexName;
+    this.indexPrefix = toIndexPrefix(this.indexName);
   }
 
-  static async withConfiguration({
+  static async withConfiguration<U extends RedisJSONObject & object>({
     url,
-  }: RedisConfiguration): Promise<RedisRepository> {
+    schema,
+    indexKey,
+    indexName,
+  }: RedisConfiguration<U>): Promise<RedisRepository<U, RediSearchSchema>> {
     const client = createClient({
       url,
     });
     await client.connect();
 
-    return new RedisRepository(client);
+    return new RedisRepository(client, schema, indexKey, indexName);
   }
 
-  static async withDefaultConfiguration(): Promise<RedisRepository> {
+  static async withDefaultConfiguration<U extends RedisJSONObject>({
+    schema,
+    indexKey,
+    indexName,
+  }: Omit<RedisConfiguration<U>, "url">): Promise<
+    RedisRepository<U, RediSearchSchema>
+  > {
     const url = env.redisUrl;
     // const username = env.redisUser;
     // const password = env.redisPassword;
     return RedisRepository.withConfiguration({
       url,
-      //   username,
-      //   password,
+      schema,
+      indexKey,
+      indexName,
     });
   }
 
   async makeIndex(): Promise<void> {
     try {
-      const index: string = APPLICATION_INDEX_NAME;
-      await this.client.ft.create(index, APPLICATION_SCHEMA, {
+      await this.client.ft.create(this.indexName, this.schema, {
         ON: "JSON",
-        PREFIX: `${APPLICATION_INDEX_PREFIX}:`,
+        PREFIX: `${this.indexPrefix}:`,
       });
     } catch (e) {
       if (!(e instanceof Error)) {
@@ -75,33 +106,35 @@ export class RedisRepository implements ApplicationRepository {
     }
   }
 
-  async addApplication(application: Application): Promise<void> {
-    const key = RedisRepository.recordName(application.loginName);
-    await this.client.json.set(key, "$", application);
+  async addEntry(entry: T): Promise<void> {
+    const stringProperties = entry as StringPropertiesOf<T>;
+    const entryKeyValue: string = stringProperties[this.indexKey];
+    const key = this.recordName(entryKeyValue);
+    await this.client.json.set(key, "$", entry);
   }
 
-  async getApplication(loginName: string): Promise<Application | null> {
-    const key = RedisRepository.recordName(loginName);
+  async getEntry(keyValue: string): Promise<T | null> {
+    const key = this.recordName(keyValue);
     const value = await this.client.json.get(key);
-    const application = applicationFromJson(value);
+    const application = applicationFromJson(value) as any as T;
 
     return application;
   }
 
-  async getApplicationByToken(token: string): Promise<Application | null> {
-    const result = await this.client.ft.search(APPLICATION_INDEX_NAME, token);
+  async getEntryByToken(token: string): Promise<T | null> {
+    const result = await this.client.ft.search(this.indexName, token);
     if (result.total <= 0) {
       return null;
     }
-    return applicationFromJson(result.documents[0]);
+    return applicationFromJson(result.documents[0]) as any as T;
   }
 
-  async deleteApplication(loginName: string): Promise<void> {
-    const key = RedisRepository.recordName(loginName);
+  async deleteEntry(loginName: string): Promise<void> {
+    const key = this.recordName(loginName);
     await this.client.json.del(key);
   }
 
-  static recordName(loginName: string): string {
-    return `${APPLICATION_INDEX_PREFIX}:${loginName}`;
+  recordName(key: string): string {
+    return `${this.indexPrefix}:${key}`;
   }
 }

@@ -18,8 +18,9 @@ export type StringKeysOf<T extends object> = Exclude<
     [K in keyof T]: T[K] extends string ? K : never;
   }[keyof T],
   undefined
->;
+> &
+  keyof T;
 
 export type StringPropertiesOf<T extends object> = {
   [K in StringKeysOf<T>]: T[K];
-};
+} & T & { [K: string]: string };
