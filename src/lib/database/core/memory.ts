@@ -1,7 +1,7 @@
 import { AbstractRepository } from "./interface";
 
 export class InMemmoryRepository<T> implements AbstractRepository<T> {
-  private records: Record<string, T>;
+  protected records: Record<string, T>;
 
   constructor() {
     this.records = {};
