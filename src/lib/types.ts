@@ -13,6 +13,13 @@ export type NonNullableRecord<T extends object> = {
   [K in keyof T]: NonNullable<T[K]>;
 };
 
+export type StringKeysOf<T extends object> = Exclude<
+  {
+    [K in keyof T]: T[K] extends string ? K : never;
+  }[keyof T],
+  undefined
+>;
+
 export type StringPropertiesOf<T extends object> = {
-  [K in keyof T]: T[K] extends string ? never : T[K];
+  [K in StringKeysOf<T>]: T[K];
 };
