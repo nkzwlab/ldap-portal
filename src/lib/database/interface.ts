@@ -1,7 +1,7 @@
 export interface AbstractRepository<T> {
-  addEntry(application: T): Promise<void>;
-  getEntry(loginName: string): Promise<T | null>;
-  deleteEntry(loginName: string): Promise<void>;
+  addEntry(key: string, application: T): Promise<void>;
+  getEntry(key: string): Promise<T | null>;
+  deleteEntry(key: string): Promise<void>;
 }
 
 export interface ApplicationRepository extends AbstractRepository<Application> {
