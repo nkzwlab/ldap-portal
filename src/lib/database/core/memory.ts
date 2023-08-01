@@ -16,17 +16,7 @@ export class InMemmoryRepository<T> implements AbstractRepository<T> {
     return application;
   }
 
-  async deleteEntry(loginName: string): Promise<void> {
-    delete this.records[loginName];
+  async deleteEntry(key: string): Promise<void> {
+    delete this.records[key];
   }
 }
-
-// async getEntryByToken(key: string): Promise<T | null> {
-//   for (const a of Object.values(this.records)) {
-//     if (a.token === key) {
-//       return a;
-//     }
-//   }
-
-//   return null;
-// }

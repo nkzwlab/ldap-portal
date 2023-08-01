@@ -1,30 +1,10 @@
 import { env } from "../../env";
-import { AbstractRepository, applicationFromJson } from "./interface";
+import { AbstractRepository } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
 import { RedisJSON } from "@redis/json/dist/commands";
 import { StringKeysOf, StringPropertiesOf } from "../../types";
 
-const APPLICATION_INDEX_PREFIX = "application";
-
-const APPLICATION_SCHEMA: RediSearchSchema = {
-  "$.loginName": {
-    type: SchemaFieldTypes.TEXT,
-    SORTABLE: true,
-  },
-  "$.email": {
-    type: SchemaFieldTypes.TEXT,
-  },
-  "$.passwordHash": {
-    type: SchemaFieldTypes.TEXT,
-  },
-  "$.token": {
-    type: SchemaFieldTypes.TEXT,
-    SORTABLE: true,
-  },
-};
-
-const toIndexPrefix = (indexName: string): string =>
-  `idx:${APPLICATION_INDEX_PREFIX}`;
+const toIndexPrefix = (indexName: string): string => `idx:${indexName}`;
 
 type RedisJSONObject = RedisJSON & object;
 
@@ -106,27 +86,19 @@ export class RedisRepository<
     }
   }
 
-  async addEntry(entry: T): Promise<void> {
-    const stringProperties = entry as StringPropertiesOf<T>;
-    const entryKeyValue: string = stringProperties[this.indexKey];
-    const key = this.recordName(entryKeyValue);
-    await this.client.json.set(key, "$", entry);
+  async addEntry(key: string, entry: T): Promise<void> {
+    const index = this.recordName(key);
+    await this.client.json.set(index, "$", entry);
   }
 
+  // Get entry from Redis server.
+  // WARNING: This *unsafely* convert raw JSON data into destination type.
   async getEntry(keyValue: string): Promise<T | null> {
     const key = this.recordName(keyValue);
     const value = await this.client.json.get(key);
-    const application = applicationFromJson(value) as any as T;
+    const application = value as any as T;
 
     return application;
-  }
-
-  async getEntryByToken(token: string): Promise<T | null> {
-    const result = await this.client.ft.search(this.indexName, token);
-    if (result.total <= 0) {
-      return null;
-    }
-    return applicationFromJson(result.documents[0]) as any as T;
   }
 
   async deleteEntry(loginName: string): Promise<void> {
