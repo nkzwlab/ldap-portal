@@ -1,4 +1,4 @@
-import { getRepository } from "@/lib/database";
+import { getRepository } from "@/lib/database/core";
 import { statusBadRequest, statusNotFound, statusOk } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 

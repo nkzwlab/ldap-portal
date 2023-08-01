@@ -1,5 +1,5 @@
 import { SSHA, generateToken } from "@/lib/crypto";
-import { Application, getRepository } from "@/lib/database";
+import { Application, getRepository } from "@/lib/database/core";
 import { statusBadRequest, statusOk, statusUnauthorized } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
