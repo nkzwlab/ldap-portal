@@ -1,32 +1,17 @@
-import { AbstractRepository } from "./interface";
+import { InMemmoryRepository } from "../core";
+import { Application, ApplicationRepository } from "./interface";
 
-export class InMemmoryRepository<T> implements AbstractRepository<T> {
-  private records: Record<string, T>;
+export class InMemmoryApplicationRepository
+  extends InMemmoryRepository<Application>
+  implements ApplicationRepository
+{
+  async getApplicationByToken(key: string): Promise<Application | null> {
+    for (const a of Object.values(this.records)) {
+      if (a.token === key) {
+        return a;
+      }
+    }
 
-  constructor() {
-    this.records = {};
-  }
-
-  async addEntry(key: string, data: T): Promise<void> {
-    this.records[key] = data;
-  }
-
-  async getEntry(key: string): Promise<T | null> {
-    const application = this.records[key];
-    return application;
-  }
-
-  async deleteEntry(loginName: string): Promise<void> {
-    delete this.records[loginName];
+    return null;
   }
 }
-
-// async getEntryByToken(key: string): Promise<T | null> {
-//   for (const a of Object.values(this.records)) {
-//     if (a.token === key) {
-//       return a;
-//     }
-//   }
-
-//   return null;
-// }
