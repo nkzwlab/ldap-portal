@@ -1,8 +1,11 @@
-export interface ApplicationRepository {
-  addApplication(application: Application): Promise<void>;
-  getApplication(loginName: string): Promise<Application | null>;
+export interface AbstractRepository<T> {
+  addEntry(application: T): Promise<void>;
+  getEntry(loginName: string): Promise<T | null>;
+  deleteEntry(loginName: string): Promise<void>;
+}
+
+export interface ApplicationRepository extends AbstractRepository<Application> {
   getApplicationByToken(token: string): Promise<Application | null>;
-  deleteApplication(loginName: string): Promise<void>;
 }
 
 export type Application = {
