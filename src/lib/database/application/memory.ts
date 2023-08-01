@@ -16,4 +16,4 @@ export class InMemmoryApplicationRepository
   }
 }
 
-export const repository = new InMemmoryApplicationRepository();
+export const inMemoryRepository = new InMemmoryApplicationRepository();

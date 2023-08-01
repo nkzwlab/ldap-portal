@@ -38,7 +38,7 @@ export class RedisApplicationRepository<S extends RediSearchSchema>
   }
 }
 
-export const repository =
+export const redisRepository =
   RedisApplicationRepository.withDefaultConfiguration<Application>({
     schema: APPLICATION_SCHEMA,
     indexKey: "loginName",
