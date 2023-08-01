@@ -12,3 +12,7 @@ export type OptionalPropertiesOf<T extends object> = {
 export type NonNullableRecord<T extends object> = {
   [K in keyof T]: NonNullable<T[K]>;
 };
+
+export type StringPropertiesOf<T extends object> = {
+  [K in keyof T]: T[K] extends string ? never : T[K];
+};
