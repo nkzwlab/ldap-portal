@@ -8,3 +8,7 @@ export type OptionalKeysOf<T extends object> = Exclude<
 export type OptionalPropertiesOf<T extends object> = {
   [K in OptionalKeysOf<T>]: T[K];
 };
+
+export type NonNullableRecord<T extends object> = {
+  [K in keyof T]: NonNullable<T[K]>;
+};
