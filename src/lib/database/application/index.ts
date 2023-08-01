@@ -1,4 +1,4 @@
-import { env } from "../env";
+import { env } from "../../env";
 import { ApplicationRepository } from "./interface";
 import { InMemmoryRepository } from "./memory";
 import { RedisRepository } from "./redis";

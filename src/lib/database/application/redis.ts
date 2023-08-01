@@ -1,8 +1,8 @@
-import { env } from "../env";
+import { env } from "../../env";
 import { AbstractRepository, applicationFromJson } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
 import { RedisJSON } from "@redis/json/dist/commands";
-import { StringKeysOf, StringPropertiesOf } from "../types";
+import { StringKeysOf, StringPropertiesOf } from "../../types";
 
 const APPLICATION_INDEX_PREFIX = "application";
 
