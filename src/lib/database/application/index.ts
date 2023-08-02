@@ -1,22 +1,23 @@
 import { env } from "../../env";
 import { ApplicationRepository } from "./interface";
-import { InMemmoryRepository } from "./memory";
-import { RedisRepository } from "./redis";
+import { InMemmoryApplicationRepository } from "./memory";
+import { RedisApplicationRepository } from "./redis";
 
 export * from "./interface";
 export * from "./memory";
 export * from "./redis";
 
-let memoryRepository = new InMemmoryRepository();
-let redisRepository: ApplicationRepository | null = null;
+export const inMemoryRepository = new InMemmoryApplicationRepository();
+export let redisRepository: null | RedisApplicationRepository = null;
 
 export const getRepository = async (): Promise<ApplicationRepository> => {
   if (env.isTest) {
-    return memoryRepository;
+    return inMemoryRepository;
   }
 
   if (redisRepository === null) {
-    redisRepository = await RedisRepository.withDefaultConfiguration();
+    redisRepository =
+      await RedisApplicationRepository.withDefaultConfiguration();
   }
 
   return redisRepository;
