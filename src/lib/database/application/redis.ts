@@ -5,10 +5,13 @@ import {
 } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
 import { RedisRepository } from "../core";
+import { env } from "@/lib/env";
 
-const APPLICATION_INDEX_PREFIX_NAME = "application";
+export const APPLICATION_INDEX_PREFIX_NAME = "application";
 
-const APPLICATION_SCHEMA: RediSearchSchema = {
+export const APPLICATION_INDEX_KEY = "loginName";
+
+export const APPLICATION_SCHEMA: RediSearchSchema = {
   "$.loginName": {
     type: SchemaFieldTypes.TEXT,
     SORTABLE: true,
@@ -25,8 +28,8 @@ const APPLICATION_SCHEMA: RediSearchSchema = {
   },
 };
 
-export class RedisApplicationRepository<S extends RediSearchSchema>
-  extends RedisRepository<Application, S>
+export class RedisApplicationRepository
+  extends RedisRepository<Application, typeof APPLICATION_SCHEMA>
   implements ApplicationRepository
 {
   async getApplicationByToken(token: string): Promise<Application | null> {
@@ -36,11 +39,22 @@ export class RedisApplicationRepository<S extends RediSearchSchema>
     }
     return applicationFromJson(result.documents[0]);
   }
-}
 
-export const redisRepository =
-  RedisApplicationRepository.withDefaultConfiguration<Application>({
-    schema: APPLICATION_SCHEMA,
-    indexKey: "loginName",
-    indexName: APPLICATION_INDEX_PREFIX_NAME,
-  });
+  static async withDefaultConfiguration(): Promise<RedisApplicationRepository> {
+    const url = env.redisUrl;
+    const schema = APPLICATION_SCHEMA;
+    const indexKey = APPLICATION_INDEX_KEY;
+    const indexName = APPLICATION_INDEX_PREFIX_NAME;
+    // const username = env.redisUser;
+    // const password = env.redisPassword;
+    return RedisApplicationRepository.withConfiguration<
+      Application,
+      RedisApplicationRepository
+    >({
+      url,
+      schema,
+      indexKey,
+      indexName,
+    });
+  }
+}

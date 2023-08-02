@@ -17,7 +17,7 @@ export type RedisConfiguration<T extends RedisJSONObject> = {
 
 export class RedisRepository<
   T extends RedisJSONObject,
-  S extends RediSearchSchema
+  S extends RediSearchSchema = RediSearchSchema
 > implements AbstractRepository<T>
 {
   client: ReturnType<typeof createClient>;
@@ -39,36 +39,16 @@ export class RedisRepository<
     this.indexPrefix = toIndexPrefix(this.indexName);
   }
 
-  static async withConfiguration<U extends RedisJSONObject & object>({
-    url,
-    schema,
-    indexKey,
-    indexName,
-  }: RedisConfiguration<U>): Promise<RedisRepository<U, RediSearchSchema>> {
+  static async withConfiguration<
+    U extends RedisJSONObject & object,
+    R extends RedisRepository<U> = RedisRepository<U>
+  >({ url, schema, indexKey, indexName }: RedisConfiguration<U>): Promise<R> {
     const client = createClient({
       url,
     });
     await client.connect();
 
-    return new RedisRepository(client, schema, indexKey, indexName);
-  }
-
-  static async withDefaultConfiguration<U extends RedisJSONObject>({
-    schema,
-    indexKey,
-    indexName,
-  }: Omit<RedisConfiguration<U>, "url">): Promise<
-    RedisRepository<U, RediSearchSchema>
-  > {
-    const url = env.redisUrl;
-    // const username = env.redisUser;
-    // const password = env.redisPassword;
-    return RedisRepository.withConfiguration({
-      url,
-      schema,
-      indexKey,
-      indexName,
-    });
+    return new RedisRepository(client, schema, indexKey, indexName) as R;
   }
 
   async makeIndex(): Promise<void> {
