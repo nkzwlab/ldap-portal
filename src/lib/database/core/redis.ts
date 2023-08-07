@@ -11,7 +11,7 @@ type RedisJSONObject = RedisJSON & object;
 export type RedisConfiguration<T extends RedisJSONObject> = {
   url: string;
   schema: RediSearchSchema;
-  indexKey: StringKeysOf<T>;
+  indexKey: keyof T;
   indexName: string;
 };
 
@@ -22,7 +22,7 @@ export class RedisRepository<
 {
   client: ReturnType<typeof createClient>;
   schema: S;
-  indexKey: StringKeysOf<T>;
+  indexKey: keyof T;
   indexName: string;
   indexPrefix: string;
 
