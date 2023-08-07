@@ -19,6 +19,9 @@ class Config {
   get password(): string {
     return this.getEnv("PASSWORD");
   }
+  get deployDomain(): string {
+    return this.getEnv("DEPLOY_DOMAIN");
+  }
   get adminCN(): string {
     return this.getEnv("ADMIN_CN");
   }
