@@ -1,5 +1,5 @@
 import { SSHA, generateToken } from "@/lib/crypto";
-import { Application, getRepository } from "@/lib/database/core";
+import { Application, getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusOk, statusUnauthorized } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -28,7 +28,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   };
 
   const repository = await getRepository();
-  await repository.addApplication(application);
+  await repository.addEntry(loginName, application);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };

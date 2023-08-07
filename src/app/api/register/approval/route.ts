@@ -1,4 +1,4 @@
-import { getRepository } from "@/lib/database/core";
+import { getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusNotFound, statusOk } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
-  await repository.deleteApplication(application.loginName);
+  await repository.deleteEntry(application.loginName);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };
