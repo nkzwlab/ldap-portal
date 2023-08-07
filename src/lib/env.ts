@@ -22,6 +22,9 @@ class Config {
   get adminCN(): string {
     return this.getEnv("ADMIN_CN");
   }
+  get defaultEmailDomain(): string {
+    return this.getEnv("EMAIL_DOMAIN");
+  }
   get redisUrl(): string {
     return this.getEnv("REDIS_URL");
   }

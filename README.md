@@ -24,6 +24,7 @@ SECRET=SECRETKEY
 PASSWORD=admincn_password
 DEPLOY_DOMAIN=ldap-portal.example.com
 ADMIN_CN=admin
+EMAIL_DOMAIN=example.com
 NODE_ENV=development|test|production
 ```
 
