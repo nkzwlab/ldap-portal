@@ -3,17 +3,36 @@ import ldap, {
   Change,
   type Change as ChangeOptions,
   Client as LdapClient,
+  SearchEntry,
+  SearchEntryObject,
 } from "ldapjs";
 
 import { env } from "./env";
 import { exec } from "child_process";
 import { SSHA } from "./crypto";
+import { NonNullableRecord, OptionalPropertiesOf } from "./types";
+import { toUidNumber } from "./ldap/utils";
 
-const { ldapOption, domain, adminCN, password: adminPassword } = env;
+const {
+  ldapOption,
+  domain,
+  adminCN,
+  defaultEmailDomain,
+  password: adminPassword,
+} = env;
 
 const ATTRIBUTE_PUBKEY = "sshPublicKey";
 const ATTRIBUTE_SHELL = "loginShell";
 const ATTRIBUTE_PASSWORD = "userPassword";
+const DEFAULT_OBJECT_CLASSES = [
+  "ldapPublicKey",
+  "posixAccount",
+  "inetOrgPerson",
+  "organizationalPerson",
+  "person",
+];
+
+const SEARCH_BASE_DN = `ou=People,${domain}`;
 
 const OPERATION_REPLACE = "replace";
 const OPERATION_ADD = "add";
@@ -144,6 +163,90 @@ export async function changePassword(
   }
 }
 
+export const fetchGreatestUidNumber = async (
+  client: LdapClient
+): Promise<number> => {
+  const entries = await searchEntries(client, SEARCH_BASE_DN, "uid=*");
+
+  const largestUid = entries
+    .map((entry) => toUidNumber(entry))
+    .filter((uidNumber) => !Number.isNaN(uidNumber))
+    .sort()
+    .pop();
+
+  if (typeof largestUid === "undefined") {
+    throw new Error("No uid number found");
+  }
+
+  return largestUid;
+};
+
+/**
+ * Parameters to add an user to the server.
+ * Required parameters are needed to identify the user (e.g., `loginName`).
+ * Optional parameters either have default values (e.g., `uidNumber`) or can be omitted (e.g., `surName`, `givenName`).
+ *
+ * @export
+ * @interface AddUserParams
+ */
+export type AddUserParams = {
+  uidNumber?: number;
+  loginName: string;
+  passwd: string;
+  surName?: string;
+  givenName?: string;
+  email?: string;
+  objectClass?: string[];
+  extraParams?: object;
+};
+
+type DefaultUserParamsType = NonNullableRecord<
+  OptionalPropertiesOf<AddUserParams>
+>;
+
+export const setDefaultUserParams = async (
+  client: LdapClient,
+  params: AddUserParams
+): Promise<AddUserParams> => {
+  const uidNumber = (await fetchGreatestUidNumber(client)) + 1;
+  const surName = params.loginName;
+  const givenName = params.loginName;
+  const email = `${params.email}@${defaultEmailDomain}`;
+  const objectClass = DEFAULT_OBJECT_CLASSES;
+  const extraParams = {};
+
+  return {
+    uidNumber,
+    surName,
+    givenName,
+    email,
+    objectClass,
+    extraParams,
+    ...params,
+  };
+};
+
+export async function addUser(
+  client: LdapClient,
+  params: AddUserParams
+): Promise<boolean> {
+  params = await setDefaultUserParams(client, params);
+  const dn = userDN(params.loginName);
+  const entry = {
+    uidNumber: params.uidNumber,
+    uid: params.loginName,
+    cn: params.loginName,
+    sn: params.surName,
+    givenName: params.givenName,
+    objectClass: params.objectClass,
+    ou: "People",
+    mail: params.email,
+    [ATTRIBUTE_PASSWORD]: params.passwd,
+  };
+
+  return await addEntry(client, dn, entry);
+}
+
 const userDN = (userID: string): string => {
   return `uid=${userID},ou=People,${domain}`;
 };
@@ -202,6 +305,41 @@ async function addEntry(
       } else {
         resolve(true);
       }
+    });
+  });
+}
+
+async function searchEntries(
+  client: LdapClient,
+  base: string,
+  filter: string
+): Promise<SearchEntryObject[]> {
+  const options = {
+    filter,
+  };
+  return new Promise((resolve, reject) => {
+    client.search(base, options, (err, res) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      let entries: SearchEntryObject[] = [];
+
+      res.on("searchEntry", (entry) => {
+        entries.push(entry.pojo);
+      });
+
+      res.on("error", (err) => {
+        console.error(
+          `searchEntries: An error occured while searching: ${err}`
+        );
+        reject(err);
+      });
+
+      res.on("end", () => {
+        resolve(entries);
+      });
     });
   });
 }
