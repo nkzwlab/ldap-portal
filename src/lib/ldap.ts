@@ -226,25 +226,31 @@ export const setDefaultUserParams = async (
   };
 };
 
-export async function addUser(
-  client: LdapClient,
-  params: AddUserParams
-): Promise<boolean> {
-  params = await setDefaultUserParams(client, params);
-  const dn = userDN(params.loginName);
-  const entry = {
-    uidNumber: params.uidNumber,
-    uid: params.loginName,
-    cn: params.loginName,
-    sn: params.surName,
-    givenName: params.givenName,
-    objectClass: params.objectClass,
-    ou: "People",
-    mail: params.email,
-    [ATTRIBUTE_PASSWORD]: params.passwd,
-  };
+export async function addUser(params: AddUserParams): Promise<boolean> {
+  const client = createClient(ldapOption);
+  try {
+    await bindAsAdmin(client);
 
-  return await addEntry(client, dn, entry);
+    params = await setDefaultUserParams(client, params);
+    const dn = userDN(params.loginName);
+    const entry = {
+      uidNumber: params.uidNumber,
+      uid: params.loginName,
+      cn: params.loginName,
+      sn: params.surName,
+      givenName: params.givenName,
+      objectClass: params.objectClass,
+      ou: "People",
+      mail: params.email,
+      [ATTRIBUTE_PASSWORD]: params.passwd,
+    };
+
+    return await addEntry(client, dn, entry);
+  } catch (err) {
+    throw err;
+  } finally {
+    await unbind(client);
+  }
 }
 
 const userDN = (userID: string): string => {
