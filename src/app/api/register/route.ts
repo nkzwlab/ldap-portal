@@ -3,6 +3,12 @@ import { Application, getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusOk, statusUnauthorized } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
+export type ApiRegisterParams = {
+  loginName: string;
+  email?: string;
+  password: string;
+};
+
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const { loginName, email, password } = await req.json();
 

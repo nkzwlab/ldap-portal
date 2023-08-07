@@ -15,6 +15,10 @@ import {
   Typography,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
+import axios from "axios";
+import { type ApiRegisterParams } from "../api/register/route";
+
+const API_PATH_REGISTER = "/api/register";
 
 const Register: NextPage = () => {
   const {
@@ -23,8 +27,16 @@ const Register: NextPage = () => {
     formState: { errors },
   } = useForm<Schema>({ resolver: zodResolver(schema) });
 
-  const onSubmit: SubmitHandler<Schema> = ({ loginName, password }) => {
-    return null;
+  const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
+    console.log("on submit");
+    const params: ApiRegisterParams = { loginName, password };
+    const resp = await axios.post(API_PATH_REGISTER, params);
+
+    if (resp.data.success) {
+      alert("Registration form has been sent successfully.");
+    } else {
+      alert("Failed to send registration form.");
+    }
   };
 
   return (
