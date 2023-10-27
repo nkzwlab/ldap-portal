@@ -5,7 +5,13 @@ import { COOKIE_NAME_TOKEN, HEADER_USERID, verifyToken } from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
 import Login from "./app/login/page";
 
-const unauthenticatedPaths = ["/_next", "/favicon.ico", "/api/auth", "/login"];
+const unauthenticatedPaths = [
+  "/_next",
+  "/favicon.ico",
+  "/api/auth",
+  "/login",
+  "/register",
+];
 
 const isUnauthenticatedPath = (path: string): boolean => {
   const isUnauthenticated = unauthenticatedPaths.reduce(
