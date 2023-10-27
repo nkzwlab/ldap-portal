@@ -63,14 +63,17 @@ const Register: NextPage = () => {
           <Controller
             name="loginName"
             control={control}
-            render={() => (
+            render={({ field, fieldState }) => (
               <TextField
+                {...field}
                 id="loginName"
                 placeholder="Login name"
                 required
                 fullWidth
                 autoComplete="loginName"
                 autoFocus
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
               ></TextField>
             )}
           />
@@ -79,14 +82,17 @@ const Register: NextPage = () => {
           <Controller
             name="password"
             control={control}
-            render={() => (
+            render={({ field, fieldState }) => (
               <TextField
+                {...field}
                 id="password"
                 type="password"
                 placeholder="Password"
                 required
                 fullWidth
                 autoComplete="password"
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
               ></TextField>
             )}
           />
@@ -95,13 +101,16 @@ const Register: NextPage = () => {
           <Controller
             name="passwordConfirmation"
             control={control}
-            render={() => (
+            render={({ field, fieldState }) => (
               <TextField
+                {...field}
                 id="passwordConfirmation"
                 type="password"
                 placeholder="Password confirmation"
                 required
                 fullWidth
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
               ></TextField>
             )}
           />
