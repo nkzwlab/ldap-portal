@@ -12,6 +12,7 @@ import { exec } from "child_process";
 import { SSHA } from "./crypto";
 import { NonNullableRecord, OptionalPropertiesOf } from "./types";
 import { toUidNumber } from "./ldap/utils";
+import { emailFromLoginName } from "./email";
 
 const {
   ldapOption,
@@ -211,7 +212,7 @@ export const setDefaultUserParams = async (
   const uidNumber = (await fetchGreatestUidNumber(client)) + 1;
   const surName = params.loginName;
   const givenName = params.loginName;
-  const email = `${params.email}@${defaultEmailDomain}`;
+  const email = emailFromLoginName(params.loginName);
   const objectClass = DEFAULT_OBJECT_CLASSES;
   const extraParams = {};
 
