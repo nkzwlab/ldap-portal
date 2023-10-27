@@ -12,11 +12,7 @@ export type ApiRegisterParams = {
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const { loginName, email, password } = await req.json();
 
-  if (
-    typeof loginName !== "string" ||
-    typeof email !== "string" ||
-    typeof password !== "string"
-  ) {
+  if (typeof loginName !== "string" || typeof password !== "string") {
     return NextResponse.json(
       { error: "invalid loginName or email or password" },
       { status: statusBadRequest }
