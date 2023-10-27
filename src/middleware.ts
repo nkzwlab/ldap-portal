@@ -9,6 +9,7 @@ const unauthenticatedPaths = [
   "/_next",
   "/favicon.ico",
   "/api/auth",
+  "/api/register",
   "/login",
   "/register",
 ];
