@@ -1,12 +1,27 @@
 version: "3"
 
 services:
+  dev-server:
+    profiles:
+      - dev
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: dev
+    env_file: .env
+    ports:
+      - "3000:3000"
+
   server:
+    profiles:
+      - prod
     build: .
     restart: unless-stopped
     env_file: .env
 
   https-portal:
+    profiles:
+      - prod
     image: steveltn/https-portal:1
     ports:
       - "80:80"
