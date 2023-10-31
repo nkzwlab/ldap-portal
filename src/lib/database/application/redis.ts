@@ -33,11 +33,17 @@ export class RedisApplicationRepository
   implements ApplicationRepository
 {
   async getApplicationByToken(token: string): Promise<Application | null> {
+    console.log(`searching for token: '${token}'`);
     const result = await this.client.ft.search(this.indexName, token);
+    console.log("got search result:", { result });
+
     if (result.total <= 0) {
       return null;
     }
-    return applicationFromJson(result.documents[0]);
+
+    const firstResult = result.documents[0];
+    console.log("getApplicationByToken: first result:", firstResult);
+    return applicationFromJson(firstResult.value);
   }
 
   static async withDefaultConfiguration(): Promise<RedisApplicationRepository> {
