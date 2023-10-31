@@ -13,6 +13,7 @@ export type Application = {
 
 export const applicationFromJson = (data: unknown): Application | null => {
   const keys: (keyof Application)[] = ["loginName", "email", "token"];
+  const optionalKeys: (typeof keys)[number][] = ["email"];
   const out: Application = {
     loginName: "",
     email: "",
@@ -22,6 +23,11 @@ export const applicationFromJson = (data: unknown): Application | null => {
 
   for (const key of keys) {
     if (typeof (data as any)[key] === "undefined") {
+      if (optionalKeys.includes(key)) {
+        continue;
+      }
+
+      console.error(`applicationFromJson: Missing required property "${key}"`);
       return null;
     }
 
