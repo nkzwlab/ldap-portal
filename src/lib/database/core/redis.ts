@@ -3,95 +3,61 @@ import { AbstractRepository } from "./interface";
 import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
 import { RedisJSON } from "@redis/json/dist/commands";
 import { StringKeysOf, StringPropertiesOf } from "../../types";
-
-const toIndexPrefix = (indexName: string): string => `idx:${indexName}`;
+import { applicationFromJson } from "../application";
 
 type RedisJSONObject = RedisJSON & object;
 
 export type RedisConfiguration<T extends RedisJSONObject> = {
   url: string;
-  schema: RediSearchSchema;
-  indexKey: keyof T;
-  indexName: string;
+  itemName: string;
 };
 
-export class RedisRepository<
-  T extends RedisJSONObject,
-  S extends RediSearchSchema = RediSearchSchema
-> implements AbstractRepository<T>
-{
+export class RedisRepository<T extends {}> implements AbstractRepository<T> {
   client: ReturnType<typeof createClient>;
-  schema: S;
-  indexKey: keyof T;
-  indexName: string;
-  indexPrefix: string;
+  name: string;
 
-  constructor(
-    client: RedisRepository<T, S>["client"],
-    schema: S,
-    indexKey: RedisRepository<T, S>["indexKey"],
-    indexName: string
-  ) {
+  constructor(client: RedisRepository<T>["client"], name: string) {
     this.client = client;
-    this.schema = schema;
-    this.indexKey = indexKey;
-    this.indexName = indexName;
-    this.indexPrefix = toIndexPrefix(this.indexName);
+    this.name = name;
   }
 
   static async withConfiguration<
     U extends RedisJSONObject & object,
     R extends RedisRepository<U> = RedisRepository<U>
-  >({ url, schema, indexKey, indexName }: RedisConfiguration<U>): Promise<R> {
+  >({ url, itemName: name }: RedisConfiguration<U>): Promise<R> {
     const client = createClient({
       url,
     });
     await client.connect();
 
-    const repository = new this(client, schema, indexKey, indexName) as R;
-    console.log("making index...");
-    await repository.makeIndex();
-    console.log("making index.: done.");
+    const repository = new this(client, name) as R;
 
     return repository;
   }
 
-  async makeIndex(): Promise<void> {
-    try {
-      await this.client.ft.create(this.indexName, this.schema, {
-        ON: "JSON",
-        PREFIX: `${this.indexPrefix}:`,
-      });
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e;
-      } else if (e.message === "Index already exists") {
-        console.log("skipping creating index");
-      }
-    }
-  }
-
   async addEntry(key: string, entry: T): Promise<void> {
-    const index = this.recordName(key);
-    await this.client.json.set(index, "$", entry);
+    const physicalKey = this.internalKey(key);
+    const fieldsAdded = await this.client.hSet(physicalKey, entry);
+    console.log(`addEntry: added fields: ${fieldsAdded}`);
   }
 
   // Get entry from Redis server.
   // WARNING: This *unsafely* convert raw JSON data into destination type.
-  async getEntry(keyValue: string): Promise<T | null> {
-    const key = this.recordName(keyValue);
-    const value = await this.client.json.get(key);
-    const application = value as any as T;
-
-    return application;
+  async getEntry(key: string): Promise<T | null> {
+    const physicalKey = this.internalKey(key);
+    const entry = await this.client.hGetAll(physicalKey);
+    return entry as any as T;
   }
 
   async deleteEntry(loginName: string): Promise<void> {
-    const key = this.recordName(loginName);
-    await this.client.json.del(key);
+    const physicalKey = this.internalKey(loginName);
+    const removedCount = await this.client.del(physicalKey);
+    console.log(
+      `deleteEntry: deleted ${removedCount} entries for key "${loginName}"`
+    );
   }
 
-  recordName(key: string): string {
-    return `${this.indexPrefix}:${key}`;
+  internalKey(key: string): string {
+    return `${this.name}:${key}`;
   }
 }
