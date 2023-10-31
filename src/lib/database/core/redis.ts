@@ -48,7 +48,12 @@ export class RedisRepository<
     });
     await client.connect();
 
-    return new RedisRepository(client, schema, indexKey, indexName) as R;
+    const repository = new this(client, schema, indexKey, indexName) as R;
+    console.log("making index...");
+    await repository.makeIndex();
+    console.log("making index.: done.");
+
+    return repository;
   }
 
   async makeIndex(): Promise<void> {
