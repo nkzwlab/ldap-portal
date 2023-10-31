@@ -5,13 +5,12 @@ export class InMemmoryApplicationRepository
   extends InMemmoryRepository<Application>
   implements ApplicationRepository
 {
-  async getApplicationByToken(key: string): Promise<Application | null> {
-    for (const a of Object.values(this.records)) {
-      if (a.token === key) {
-        return a;
-      }
+  async getApplicationByToken(token: string): Promise<Application | null> {
+    const entry = this.records[token];
+    if (typeof entry === "undefined") {
+      return null;
     }
 
-    return null;
+    return entry;
   }
 }
