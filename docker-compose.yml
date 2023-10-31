@@ -69,6 +69,7 @@ services:
       LDAP_ORGANISATION: "Jn lab"
       LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
       LDAP_BASE_DN: "dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
+      LDAP_TLS: "false"
       LDAP_TLS_ENFORCE: "false"
       LDAP_READONLY_USER: "true"
       LDAP_READONLY_USER_USERNAME: "readonly"
