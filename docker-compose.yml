@@ -13,6 +13,9 @@ services:
       - "3000:3000"
     volumes:
       - ".:/src"
+    networks:
+      - ldap
+      - redis
 
   server:
     profiles:
@@ -40,9 +43,85 @@ services:
 
   # Redis にアカウント作成リクエストを保存する
   redis:
+    profiles:
+      - dev
+      - prod
     image: redis/redis-stack:7.2.0-v4
     volumes:
       - "redis-data:/data"
+    networks:
+      - redis
+
+  ## LDAP ##
+
+  slapd: # OpenLDAPサーバ
+    profiles:
+      - ldap
+    image: osixia/openldap:1.5.0
+    platform: linux/arm64
+    container_name: slapd
+    restart: on-failure:3
+    hostname: ldap.jn.sfc.keio.ac.jp
+    ports:
+      - 636:636
+      - 389:389
+    environment:
+      LDAP_ORGANISATION: "Jn lab"
+      LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
+      LDAP_BASE_DN: "dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: "readonly"
+    env_file:
+      - .ldap.env
+    volumes:
+      - ./data/ldap_db:/var/lib/ldap
+      - ./data/ldap_config:/etc/ldap/slapd.d
+      - ./data/https-portal/ldap.jn.sfc.keio.ac.jp/production:/container/service/slapd/assets/certs
+        #- ./data/https-portal/ldap.jn.sfc.keio.ac.jp/staging:/container/service/slapd/assets/certs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - ldap
+
+  lam: # Ldap Account Manager (LDAP管理ツール）
+    profiles:
+      - ldap
+    build:
+      dockerfile: ./lam.dockerfile
+      context: .
+    platform: linux/amd64
+    container_name: lam
+    restart: on-failure:3
+    environment:
+      LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
+      LDAP_BASE_DN: "dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
+      LDAP_USERS_DN: "ou=people,dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
+      LDAP_GROUPS_DN: "ou=groups,dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
+      LDAP_SERVER: "ldap://slapd"
+      LDAP_ORGANISATION: "Jn lab"
+      LAM_LANG: "ja_JP"
+      # LAM_PASSWORD: "lam"
+    env_file:
+      - .env
+    depends_on:
+      - slapd
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - ldap
+    ports:
+      - "8081:80"
+
+networks:
+  ldap: {}
+  redis: {}
 
 volumes:
   redis-data: {}
