@@ -1,17 +1,27 @@
 class Config {
-  getEnv(key: string): string {
+  getEnv(key: string, defaultValue?: string): string {
     const value = process.env[key];
+
     if (typeof value === "undefined") {
-      throw new Error(`environment variable ${key} is not set`);
+      if (typeof defaultValue === "undefined") {
+        throw new Error(`environment variable ${key} is not set`);
+      }
+
+      return defaultValue;
     }
 
     return value;
   }
+
   get ldapOption(): { url: string } {
     return { url: this.getEnv("LDAP_URI") };
   }
   get domain(): string {
     return this.getEnv("LDAP_DOMAIN");
+  }
+  get uidNumberStart(): number {
+    const uidNumberStr = this.getEnv("UID_NUMBER_START", "10000");
+    return Number(uidNumberStr);
   }
   get secret(): string {
     return this.getEnv("SECRET");

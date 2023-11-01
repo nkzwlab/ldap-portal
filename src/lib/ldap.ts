@@ -176,7 +176,10 @@ export const fetchGreatestUidNumber = async (
     .pop();
 
   if (typeof largestUid === "undefined") {
-    throw new Error("No uid number found");
+    console.warn(
+      "fetchGreatestUidNumber: No uid number found on the server. Returninng default value."
+    );
+    return env.uidNumberStart;
   }
 
   return largestUid;
