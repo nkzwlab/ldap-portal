@@ -6,6 +6,7 @@ import {
   statusOk,
 } from "@/lib/http";
 import { AddUserParams, addUser } from "@/lib/ldap";
+import { EntryAlreadyExistsError } from "ldapjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
@@ -30,10 +31,23 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const params: AddUserParams = applicationToParams(application);
 
-  await repository.deleteEntry(application.loginName);
-  const success = await addUser(params);
-  const status = success ? statusOk : statusInternalServerError;
+  await repository.deleteEntry(token);
+  let success = false;
 
+  try {
+    const success = await addUser(params);
+  } catch (err) {
+    if (err instanceof EntryAlreadyExistsError) {
+      return NextResponse.json({
+        success: false,
+        error: "User already exists",
+      });
+    }
+
+    throw err;
+  }
+
+  const status = success ? statusOk : statusInternalServerError;
   return NextResponse.json({ success }, { status });
 };
 
