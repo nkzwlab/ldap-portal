@@ -37,3 +37,10 @@ docker-compose up -d
 ## LDAP Schema
 Here is the LDAP schema that this application is based on.
 [schema](docs/schema)
+
+## How to develop
+
+1. docker compose up
+2. localhost:8081 でログイン
+    - `Hogefuga123!`
+3. 「作成」ボタンを押す
