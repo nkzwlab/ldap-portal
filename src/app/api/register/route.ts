@@ -26,11 +26,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     loginName,
     email,
     passwordHash,
-    token,
   };
 
   const repository = await getRepository();
-  await repository.addEntry(loginName, application);
+  await repository.addEntry(token, application);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };

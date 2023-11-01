@@ -37,6 +37,7 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
 
   async addEntry(key: string, entry: T): Promise<void> {
     const physicalKey = this.internalKey(key);
+    console.log(`addEntry: adding "${physicalKey}" = ${JSON.stringify(entry)}`);
     const fieldsAdded = await this.client.hSet(physicalKey, entry);
     console.log(`addEntry: added fields: ${fieldsAdded}`);
   }
