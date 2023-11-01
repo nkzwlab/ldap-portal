@@ -7,7 +7,7 @@ import { applicationFromJson } from "../application";
 
 type RedisJSONObject = RedisJSON & object;
 
-export type RedisConfiguration<T extends RedisJSONObject> = {
+export type RedisConfiguration = {
   url: string;
   itemName: string;
 };
@@ -24,7 +24,7 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
   static async withConfiguration<
     U extends RedisJSONObject & object,
     R extends RedisRepository<U> = RedisRepository<U>
-  >({ url, itemName: name }: RedisConfiguration<U>): Promise<R> {
+  >({ url, itemName: name }: RedisConfiguration): Promise<R> {
     const client = createClient({
       url,
     });
@@ -50,6 +50,14 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
     return entry as any as T;
   }
 
+  // WARNING: This *unsafely* convert raw JSON data into destination type.
+  async getAllEntries(): Promise<T[]> {
+    const keys = await this.client.keys(this.prefix);
+    const entries = await this.client.mGet(keys);
+    const nonEmptyEntries = entries.filter((v) => v !== null) as T[];
+    return nonEmptyEntries;
+  }
+
   async deleteEntry(loginName: string): Promise<void> {
     const physicalKey = this.internalKey(loginName);
     const removedCount = await this.client.del(physicalKey);
@@ -58,7 +66,11 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
     );
   }
 
+  get prefix(): string {
+    return `${this.name}:`;
+  }
+
   internalKey(key: string): string {
-    return `${this.name}:${key}`;
+    return this.prefix + key;
   }
 }
