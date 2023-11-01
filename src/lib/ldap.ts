@@ -3,24 +3,17 @@ import ldap, {
   Change,
   type Change as ChangeOptions,
   Client as LdapClient,
-  SearchEntry,
   SearchEntryObject,
+  SearchOptions,
 } from "ldapjs";
 
 import { env } from "./env";
-import { exec } from "child_process";
 import { SSHA } from "./crypto";
 import { NonNullableRecord, OptionalPropertiesOf } from "./types";
 import { toUidNumber } from "./ldap/utils";
 import { emailFromLoginName } from "./email";
 
-const {
-  ldapOption,
-  domain,
-  adminCN,
-  defaultEmailDomain,
-  password: adminPassword,
-} = env;
+const { ldapOption, domain, adminCN, password: adminPassword } = env;
 
 const ATTRIBUTE_PUBKEY = "sshPublicKey";
 const ATTRIBUTE_SHELL = "loginShell";
@@ -34,6 +27,7 @@ const DEFAULT_OBJECT_CLASSES = [
 ];
 
 const SEARCH_BASE_DN = `ou=People,${domain}`;
+const GROUP_SEARCH_BASE_DN = `ou=Groups,${domain}`;
 
 const OPERATION_REPLACE = "replace";
 const OPERATION_ADD = "add";
@@ -161,6 +155,36 @@ export async function changePassword(
     throw err;
   } finally {
     unbind(client);
+  }
+}
+
+export async function isUserInGroup(
+  userID: string,
+  groupName: string
+): Promise<boolean> {
+  const client = createClient(ldapOption);
+  // Serach for groups, that its name iss `groupName` and it includes the user
+  // with id `userID` as a member
+  const filter = `(&(memberUid=${userID})(cn=${groupName}))`;
+  // I don't know why but we seem to need 'sub' (=2) scope to secrah groups
+  const options: SearchOptions = {
+    scope: "sub",
+  };
+
+  try {
+    await bindAsAdmin(client);
+    const groups = await searchEntries(
+      client,
+      GROUP_SEARCH_BASE_DN,
+      filter,
+      options
+    );
+
+    return groups.length > 0;
+  } catch (err) {
+    throw err;
+  } finally {
+    await unbind(client);
   }
 }
 
@@ -336,10 +360,12 @@ async function addEntry(
 async function searchEntries(
   client: LdapClient,
   base: string,
-  filter: string
+  filter: string,
+  customOptions?: SearchOptions
 ): Promise<SearchEntryObject[]> {
-  const options = {
+  const options: SearchOptions = {
     filter,
+    ...customOptions,
   };
   return new Promise((resolve, reject) => {
     client.search(base, options, (err, res) => {
