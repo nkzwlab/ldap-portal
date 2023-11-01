@@ -28,6 +28,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     email,
     passwordHash,
   };
+  console.log({ application });
   const applicationWithoutUndefined = removeUndefinedProperty(application);
 
   const repository = await getRepository();

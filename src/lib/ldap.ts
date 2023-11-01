@@ -214,6 +214,7 @@ export const setDefaultUserParams = async (
   client: LdapClient,
   params: AddUserParams
 ): Promise<AddUserParams> => {
+  console.log("setDefaultUserParams: setting default params on:", params);
   const uidNumber = (await fetchGreatestUidNumber(client)) + 1;
   const gidNumber = env.defaultGidNumber;
   const homeDirectory = `/home/${params.loginName}`;
@@ -223,7 +224,7 @@ export const setDefaultUserParams = async (
   const objectClass = DEFAULT_OBJECT_CLASSES;
   const extraParams = {};
 
-  return {
+  const out = {
     uidNumber,
     gidNumber,
     homeDirectory,
@@ -234,6 +235,9 @@ export const setDefaultUserParams = async (
     extraParams,
     ...params,
   };
+
+  console.log("setDefaultUserParams: output:", out);
+  return out;
 };
 
 export async function addUser(params: AddUserParams): Promise<boolean> {
@@ -256,6 +260,7 @@ export async function addUser(params: AddUserParams): Promise<boolean> {
       mail: params.email,
       [ATTRIBUTE_PASSWORD]: params.passwd,
     };
+    console.log("addUser: saving entry:", entry);
 
     return await addEntry(client, dn, entry);
   } catch (err) {

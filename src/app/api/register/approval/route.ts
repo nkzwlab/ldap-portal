@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   let success = false;
 
   try {
-    const success = await addUser(params);
+    success = await addUser(params);
   } catch (err) {
     if (err instanceof EntryAlreadyExistsError) {
       return NextResponse.json({
@@ -52,12 +52,16 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 };
 
 const applicationToParams = (application: Application): AddUserParams => {
+  console.log("applicationToParams: converting application:", application);
+
   const { loginName, email, passwordHash } = application;
   const params: AddUserParams = {
     loginName,
     email,
     passwd: passwordHash,
   };
+
+  console.log("applicationToParams: output params:", params);
 
   return params;
 };

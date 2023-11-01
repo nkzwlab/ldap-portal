@@ -11,7 +11,7 @@ export type Application = {
 };
 
 export const applicationFromJson = (data: unknown): Application | null => {
-  const keys: (keyof Application)[] = ["loginName", "email"];
+  const keys: (keyof Application)[] = ["loginName", "email", "passwordHash"];
   const optionalKeys: (typeof keys)[number][] = ["email"];
   const out: Application = {
     loginName: "",
