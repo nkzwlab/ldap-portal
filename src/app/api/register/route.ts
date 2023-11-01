@@ -1,6 +1,7 @@
 import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusOk, statusUnauthorized } from "@/lib/http";
+import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export type ApiRegisterParams = {
@@ -27,9 +28,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     email,
     passwordHash,
   };
+  const applicationWithoutUndefined = removeUndefinedProperty(application);
 
   const repository = await getRepository();
-  await repository.addEntry(token, application);
+  await repository.addEntry(token, applicationWithoutUndefined);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };
