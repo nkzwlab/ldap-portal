@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { COOKIE_NAME_TOKEN, HEADER_USERID, verifyToken } from "./lib/auth";
+import {
+  COOKIE_NAME_TOKEN,
+  HEADER_USERID,
+  Payload,
+  verifyToken,
+} from "./lib/auth";
 import { statusUnauthorized } from "./lib/http";
 import Login from "./app/login/page";
+import { isUserInGroup } from "./lib/ldap";
+import { env } from "./lib/env";
 
 const unauthenticatedPaths = [
-  "/_next",
+  "/_next/",
   "/favicon.ico",
   "/api/auth",
   "/api/register",
@@ -14,17 +21,30 @@ const unauthenticatedPaths = [
   "/register",
 ];
 
-const isUnauthenticatedPath = (path: string): boolean => {
-  const isUnauthenticated = unauthenticatedPaths.reduce(
-    (prev, curr) => prev || path.startsWith(curr),
-    false
-  );
+const adminAuthorizedPaths = ["/api/register/approval"];
 
-  return isUnauthenticated;
+const pathMatches = (paths: string[], targetPath: string): boolean => {
+  for (const p of paths) {
+    const matches = p === targetPath;
+    const nestedMatches = p.endsWith("/") && targetPath.startsWith(p);
+
+    if (matches || nestedMatches) {
+      return true;
+    }
+  }
+
+  return false;
 };
+
+const isUnauthenticatedPath = (path: string) =>
+  pathMatches(unauthenticatedPaths, path);
+
+const isAdminAuthorizedPath = (path: string) =>
+  pathMatches(adminAuthorizedPaths, path);
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
   if (isUnauthenticatedPath(path)) {
     return NextResponse.next();
   }
@@ -40,16 +60,33 @@ export async function middleware(req: NextRequest) {
 
   const token = cookie.value;
 
-  try {
-    const { userID } = await verifyToken(token);
-    const headers = new Headers(req.headers);
-    headers.set(HEADER_USERID, userID);
+  let payload: Payload;
 
-    return NextResponse.next({
-      headers,
-    });
+  try {
+    payload = await verifyToken(token);
   } catch (e) {
     console.error(`Unauthorized: ${e}`);
     return NextResponse.redirect(loginUrl);
   }
+
+  const { userID } = payload;
+
+  if (isAdminAuthorizedPath(path)) {
+    const { adminGroup } = env;
+    const authorezied = await isUserInGroup(userID, adminGroup);
+
+    if (!authorezied) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: statusUnauthorized }
+      );
+    }
+  }
+
+  const headers = new Headers(req.headers);
+  headers.set(HEADER_USERID, userID);
+
+  return NextResponse.next({
+    headers,
+  });
 }

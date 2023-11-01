@@ -36,6 +36,9 @@ class Config {
   get deployDomain(): string {
     return this.getEnv("DEPLOY_DOMAIN");
   }
+  get adminGroup(): string {
+    return this.getEnv("ADMIN_GROUP");
+  }
   get adminCN(): string {
     return this.getEnv("ADMIN_CN");
   }
