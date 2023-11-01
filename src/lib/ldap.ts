@@ -179,7 +179,7 @@ export const fetchGreatestUidNumber = async (
     console.warn(
       "fetchGreatestUidNumber: No uid number found on the server. Returninng default value."
     );
-    return env.uidNumberStart;
+    return env.uidNumberStart - 1;
   }
 
   return largestUid;
@@ -195,8 +195,10 @@ export const fetchGreatestUidNumber = async (
  */
 export type AddUserParams = {
   uidNumber?: number;
+  gidNumber?: number;
   loginName: string;
   passwd: string;
+  homeDirectory?: string;
   surName?: string;
   givenName?: string;
   email?: string;
@@ -213,6 +215,8 @@ export const setDefaultUserParams = async (
   params: AddUserParams
 ): Promise<AddUserParams> => {
   const uidNumber = (await fetchGreatestUidNumber(client)) + 1;
+  const gidNumber = env.defaultGidNumber;
+  const homeDirectory = `/home/${params.loginName}`;
   const surName = params.loginName;
   const givenName = params.loginName;
   const email = emailFromLoginName(params.loginName);
@@ -221,6 +225,8 @@ export const setDefaultUserParams = async (
 
   return {
     uidNumber,
+    gidNumber,
+    homeDirectory,
     surName,
     givenName,
     email,
@@ -239,6 +245,8 @@ export async function addUser(params: AddUserParams): Promise<boolean> {
     const dn = userDN(params.loginName);
     const entry = {
       uidNumber: params.uidNumber,
+      gidNumber: params.gidNumber,
+      homeDirectory: params.homeDirectory,
       uid: params.loginName,
       cn: params.loginName,
       sn: params.surName,
@@ -308,6 +316,7 @@ async function addEntry(
   dn: string,
   entry: any
 ): Promise<boolean> {
+  console.log({ entry });
   return new Promise((resolve, reject) => {
     client.add(dn, entry, (err) => {
       if (err) {

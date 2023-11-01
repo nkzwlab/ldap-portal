@@ -20,8 +20,12 @@ class Config {
     return this.getEnv("LDAP_DOMAIN");
   }
   get uidNumberStart(): number {
-    const uidNumberStr = this.getEnv("UID_NUMBER_START", "10000");
+    const uidNumberStr = this.getEnv("UID_NUMBER_START", "10001");
     return Number(uidNumberStr);
+  }
+  get defaultGidNumber(): number {
+    const gidNumberStr = this.getEnv("DEFAULT_GID_NUMBER", "10001");
+    return Number(gidNumberStr);
   }
   get secret(): string {
     return this.getEnv("SECRET");
