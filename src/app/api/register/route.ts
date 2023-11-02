@@ -27,6 +27,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     loginName,
     email,
     passwordHash,
+    token,
   };
   console.log({ application });
   const applicationWithoutUndefined = removeUndefinedProperty(application);
