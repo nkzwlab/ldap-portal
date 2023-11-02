@@ -7,10 +7,6 @@ import {
   Payload,
   verifyToken,
 } from "./lib/auth";
-import { statusUnauthorized } from "./lib/http";
-import Login from "./app/login/page";
-import { isUserInGroup } from "./lib/ldap";
-import { env } from "./lib/env";
 
 const unauthenticatedPaths = [
   "/_next/",
@@ -19,11 +15,6 @@ const unauthenticatedPaths = [
   "/api/register",
   "/login",
   "/register",
-];
-
-const adminAuthorizedPaths = [
-  "/api/register/applications",
-  "/register/approve",
 ];
 
 const pathMatches = (paths: string[], targetPath: string): boolean => {
@@ -41,9 +32,6 @@ const pathMatches = (paths: string[], targetPath: string): boolean => {
 
 const isUnauthenticatedPath = (path: string) =>
   pathMatches(unauthenticatedPaths, path);
-
-const isAdminAuthorizedPath = (path: string) =>
-  pathMatches(adminAuthorizedPaths, path);
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -73,18 +61,6 @@ export async function middleware(req: NextRequest) {
   }
 
   const { userID } = payload;
-
-  if (isAdminAuthorizedPath(path)) {
-    const { adminGroup } = env;
-    const authorezied = await isUserInGroup(userID, adminGroup);
-
-    if (!authorezied) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: statusUnauthorized }
-      );
-    }
-  }
 
   const headers = new Headers(req.headers);
   headers.set(HEADER_USERID, userID);
