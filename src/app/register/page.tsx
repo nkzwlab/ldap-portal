@@ -24,7 +24,7 @@ const Register: NextPage = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, isSubmitted },
   } = useForm<Schema>({ resolver: zodResolver(schema) });
 
   const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
@@ -115,7 +115,12 @@ const Register: NextPage = () => {
             )}
           />
 
-          <Button type="submit" variant="contained" fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isSubmitting || isSubmitted}
+          >
             Submit
           </Button>
         </Stack>
