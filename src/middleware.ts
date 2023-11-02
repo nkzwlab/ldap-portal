@@ -21,7 +21,10 @@ const unauthenticatedPaths = [
   "/register",
 ];
 
-const adminAuthorizedPaths = ["/api/register/approval"];
+const adminAuthorizedPaths = [
+  "/api/register/applications",
+  "/register/approve",
+];
 
 const pathMatches = (paths: string[], targetPath: string): boolean => {
   for (const p of paths) {
