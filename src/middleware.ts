@@ -13,6 +13,7 @@ const unauthenticatedPaths = [
   "/favicon.ico",
   "/api/auth",
   "/api/register",
+  "/api/register/approval",
   "/login",
   "/register",
 ];
