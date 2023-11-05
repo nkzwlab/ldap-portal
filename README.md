@@ -9,15 +9,16 @@ You can change passwords, login shells, and add or delete public keys.
 
 ## How to deploy
 
-### 1. create .env file
+### 1. create .env and .ldap.env file
 
-You can cp sample.env
+You can copy sample files
 
 ```
 cp sample.env .env
+cp sample.ldap.env .ldap.env
 ```
 
-```
+```.env
 LDAP_URI=ldap://ldap.example.com/
 LDAP_DOMAIN=dc=example,dc=com
 SECRET=SECRETKEY
@@ -26,6 +27,11 @@ DEPLOY_DOMAIN=ldap-portal.example.com
 ADMIN_CN=admin
 EMAIL_DOMAIN=example.com
 NODE_ENV=development|test|production
+```
+
+```.ldap.env
+LDAP_ADMIN_PASSWORD=YourPassw0rd!
+LAM_PASSWORD=YourPassw0rd!
 ```
 
 ### 2. docker run
