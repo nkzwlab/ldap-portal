@@ -57,7 +57,6 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
     console.log("getAllEntrries:", { keys });
     if (keys.length <= 0) {
       console.log("getAllEntrries: keys are 0 length. Retuning empty array.");
-      cker;
       return [];
     }
 
