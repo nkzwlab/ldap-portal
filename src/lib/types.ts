@@ -24,3 +24,17 @@ export type StringKeysOf<T extends object> = Exclude<
 export type StringPropertiesOf<T extends object> = {
   [K in StringKeysOf<T>]: T[K];
 } & T & { [K: string]: string };
+
+export const shells = [
+  "/bin/sh",
+  "/bin/bash",
+  "/bin/rbash",
+  "/bin/dash",
+  "/bin/tcsh",
+  "/bin/csh",
+  "/bin/zsh",
+  "/usr/bin/zsh",
+  "/usr/bin/fish",
+] as const;
+
+export type Shell = (typeof shells)[number];

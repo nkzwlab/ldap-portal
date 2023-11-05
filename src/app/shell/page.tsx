@@ -17,151 +17,110 @@ import SnackbarContent from "@mui/material/SnackbarContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import styles from "./page.module.css";
-
-const shells = [
-  "/bin/sh",
-  "/bin/bash",
-  "/bin/rbash",
-  "/bin/dash",
-  "/bin/tcsh",
-  "/bin/csh",
-  "/bin/zsh",
-  "/usr/bin/zsh",
-  "/usr/bin/fish",
-];
-
-interface State {
-  err: any;
-  shell: string;
-  loadProgress: boolean;
-}
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useShell, useUpdateShell } from "@/lib/hooks/shell";
+import { Container, CssBaseline, Stack } from "@mui/material";
+import { Schema, schema } from "./schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function Shell() {
-  const [state, setState] = useState<State>({
-    err: null,
-    shell: "",
-    loadProgress: true,
-  });
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitted },
+  } = useForm<Schema>({ resolver: zodResolver(schema) });
 
-  const setShell: React.FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-    const { shell } = state;
-    try {
-      setState({ ...state, loadProgress: true });
-      const { data } = await axios.post("/api/shell", { shell });
-      if (data.ok) {
-        setState({ ...state, shell });
-      }
-      setState({ ...state, loadProgress: false });
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setState({
-          ...state,
-          err: err.response ? err.response.data.message : err.message,
-          loadProgress: false,
-        });
-      } else {
-        throw err;
-      }
-    }
+  const currentShell = useShell();
+  const { updateShell, result } = useUpdateShell();
+
+  const onSubmit: SubmitHandler<Schema> = async ({ shell }) => {
+    await updateShell(shell);
   };
 
-  useEffect(() => {
-    const setCurrentShell = async () => {
-      try {
-        const { data } = await axios.get("/api/shell");
-        assert.notEqual(null, data.shell);
-        setState({ ...state, shell: data.shell, loadProgress: false });
-        console.log(data.shell);
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          setState({
-            ...state,
-            err: err.response ? err.response.data.message : err.message,
-            loadProgress: false,
-          });
-        } else {
-          throw err;
-        }
-      }
-    };
-    setCurrentShell();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  TODO: select shell
 
   return (
-    <div className={styles.root}>
-      <Snackbar
-        open={state.err != null}
-        autoHideDuration={2000}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        onClose={() => {
-          setState({ ...state, err: null });
-        }}
-      >
-        <SnackbarContent message={state.err} />
-      </Snackbar>
-      {state.loadProgress ? (
-        <Grid container justifyContent="center">
-          <CircularProgress />
-        </Grid>
-      ) : (
-        <Grid container justifyContent="center">
-          <Paper className={styles.paper}>
-            <form onSubmit={setShell}>
-              <Grid container spacing={24}>
-                <Grid item xs={12}>
-                  <Typography gutterBottom variant="h5" align="center">
-                    Change Shell
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl className={styles.shell}>
-                    <InputLabel htmlFor="shell-select">Shell</InputLabel>
-                    <Select
-                      value={state.shell}
-                      onChange={(e) => {
-                        setState({ ...state, shell: e.target.value });
-                      }}
-                      inputProps={{
-                        name: "shell",
-                        id: "shell-select",
-                      }}
-                    >
-                      {shells.map((shell) => {
-                        return (
-                          <MenuItem key={shell} value={shell}>
-                            {shell}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  {state.loadProgress ? (
-                    <Grid container justifyContent="center">
-                      <CircularProgress />
-                    </Grid>
-                  ) : (
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      className={styles.button}
-                    >
-                      Submit
-                    </Button>
-                  )}
-                </Grid>
-              </Grid>
-            </form>
-          </Paper>
-        </Grid>
-      )}
-    </div>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
+        <Typography variant="h5" component="h1">
+          Change login shell
+        </Typography>
+
+        <Stack
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          spacing={2}
+          alignItems="center"
+          width="100%"
+        >
+          {/* Text field for login name. Conrtolled by React-Hook-Form */}
+          <Controller
+            name="loginName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="loginName"
+                label="Login name"
+                required
+                fullWidth
+                autoComplete="loginName"
+                autoFocus
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          {/* Text field for password. Controlled by React-Hook-Form */}
+          <Controller
+            name="password"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="password"
+                type="password"
+                label="Password"
+                required
+                fullWidth
+                autoComplete="password"
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          {/* Text field for password confirmation. Controlled by React-Hook-Form */}
+          <Controller
+            name="passwordConfirmation"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="passwordConfirmation"
+                type="password"
+                label="Password confirmation"
+                required
+                fullWidth
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isSubmitting || isSubmitted}
+          >
+            Submit
+          </Button>
+        </Stack>
+      </Stack>
+    </Container>
   );
 }
