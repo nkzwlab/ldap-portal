@@ -191,13 +191,17 @@ export async function isUserInGroup(
 export const fetchGreatestUidNumber = async (
   client: LdapClient
 ): Promise<number> => {
-  const entries = await searchEntries(client, SEARCH_BASE_DN, "uid=*");
+  const entries = await searchEntries(client, SEARCH_BASE_DN, "uid=*", {
+    scope: "sub",
+  });
+
+  console.log("fetchGreatestUidNumber:", { entries });
 
   const largestUid = entries
     .map((entry) => toUidNumber(entry))
-    .filter((uidNumber) => !Number.isNaN(uidNumber))
+    .filter((uidNumber) => uidNumber !== null && !Number.isNaN(uidNumber))
     .sort()
-    .pop();
+    .pop() as number;
 
   if (typeof largestUid === "undefined") {
     console.warn(
