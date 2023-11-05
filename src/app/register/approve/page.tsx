@@ -34,7 +34,9 @@ const Approve = () => {
     ? applications.map((application, index) => (
         <TableRow key={index}>
           <TableCell>{application.loginName}</TableCell>
-          <TableCell align="right">{application.email}</TableCell>
+          <TableCell align="right">
+            {application.email || "(Not entered)"}
+          </TableCell>
           <TableCell align="right">
             <ApproveButton application={application} />
           </TableCell>
@@ -43,7 +45,7 @@ const Approve = () => {
     : null;
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <CssBaseline />
       <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
         <Typography variant="h4" component="h1">
@@ -51,20 +53,17 @@ const Approve = () => {
         </Typography>
 
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="user information">
+          <Table sx={{ minWidth: "sm" }} aria-label="user information">
             <TableHead>
               <TableRow>
                 <TableCell>Login name</TableCell>
                 <TableCell align="right">Email</TableCell>
-                <TableCell align="right">Token</TableCell>
+                <TableCell align="right">Approve</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{rows}</TableBody>
           </Table>
         </TableContainer>
-        <Button type="submit" variant="contained" fullWidth>
-          Submit
-        </Button>
       </Stack>
     </Container>
   );
