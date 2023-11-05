@@ -67,7 +67,7 @@ const Register: NextPage = () => {
               <TextField
                 {...field}
                 id="loginName"
-                placeholder="Login name"
+                label="Login name"
                 required
                 fullWidth
                 autoComplete="loginName"
@@ -87,7 +87,7 @@ const Register: NextPage = () => {
                 {...field}
                 id="password"
                 type="password"
-                placeholder="Password"
+                label="Password"
                 required
                 fullWidth
                 autoComplete="password"
@@ -106,7 +106,7 @@ const Register: NextPage = () => {
                 {...field}
                 id="passwordConfirmation"
                 type="password"
-                placeholder="Password confirmation"
+                label="Password confirmation"
                 required
                 fullWidth
                 error={fieldState.invalid}

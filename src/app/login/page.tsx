@@ -69,7 +69,7 @@ export default function Login() {
               <TextField
                 {...field}
                 id="loginName"
-                placeholder="Login name"
+                label="Login name"
                 required
                 fullWidth
                 autoComplete="loginName"
@@ -89,7 +89,7 @@ export default function Login() {
                 {...field}
                 id="password"
                 type="password"
-                placeholder="Password"
+                label="Password"
                 required
                 fullWidth
                 autoComplete="password"

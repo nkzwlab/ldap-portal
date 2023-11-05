@@ -68,7 +68,7 @@ export default function Login() {
                 {...field}
                 id="password"
                 type="password"
-                placeholder="Current password"
+                label="Current Password"
                 required
                 fullWidth
                 autoComplete="password"
@@ -87,7 +87,7 @@ export default function Login() {
                 {...field}
                 id="newPassword"
                 type="password"
-                placeholder="New Password"
+                label="New Password"
                 required
                 fullWidth
                 autoComplete="new-password"
@@ -105,7 +105,7 @@ export default function Login() {
                 {...field}
                 id="newPasswordConfirmation"
                 type="password"
-                placeholder="New password (confirmation)"
+                label="Confirm new password"
                 required
                 fullWidth
                 autoComplete="new-password"
