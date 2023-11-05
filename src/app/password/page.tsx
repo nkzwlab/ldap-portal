@@ -1,151 +1,130 @@
 "use client";
 
-import React, { useState } from "react";
+import * as React from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Schema, schema } from "./schema";
+import {
+  Avatar,
+  Button,
+  Container,
+  CssBaseline,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { LockOutlined } from "@mui/icons-material";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import axios, { AxiosError } from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import SnackbarContent from "@mui/material/SnackbarContent";
-import CircularProgress from "@mui/material/CircularProgress";
+import { ApiPasswordPutParams } from "../api/password/route";
 
-import styles from "./page.module.css";
+const API_PATH_PASSWORD = "/api/password";
 
-interface State {
-  err: any;
-  progress: boolean;
-  password: string;
-  newPassword: string;
-  confirmNewPassword: string;
-}
+export default function Login() {
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitSuccessful, isValid },
+  } = useForm<Schema>({ resolver: zodResolver(schema) });
+  console.log({ isSubmitSuccessful, isSubmitting, isValid });
 
-export default function Password() {
-  const router = useRouter();
+  const onSubmit: SubmitHandler<Schema> = async ({ password, newPassword }) => {
+    console.log("on submit");
+    const params: ApiPasswordPutParams = { password, newPassword };
+    const resp = await axios.put(API_PATH_PASSWORD, params);
 
-  const [state, setState] = useState<State>({
-    err: null,
-    progress: false,
-    password: "",
-    newPassword: "",
-    confirmNewPassword: "",
-  });
-
-  const changePassword: React.FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    event.preventDefault();
-    const { password, newPassword } = state;
-    if (newPassword != state.confirmNewPassword || newPassword.length < 8) {
-      setState({ ...state, err: "invalid new password" });
-      return;
-    }
-    try {
-      setState({ ...state, progress: true });
-      const { data } = await axios.post("/api/password", {
-        password,
-        newPassword,
-      });
-      if (data.ok) {
-        router.push("/");
-      }
-      setState({ ...state, progress: false });
-    } catch (err) {
-      setState({
-        ...state,
-        err: err instanceof AxiosError ? err.response?.data.message : err,
-        progress: false,
-      });
+    if (resp.data.success) {
+      alert("Updated password successfully.");
+    } else {
+      alert("Failed to update password.");
     }
   };
 
   return (
-    <div className={styles.root}>
-      <Snackbar
-        open={state.err != null}
-        autoHideDuration={2000}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        onClose={() => {
-          setState({ ...state, err: null });
-        }}
-      >
-        <SnackbarContent message={state.err} />
-      </Snackbar>
-      <Grid container justifySelf="center">
-        <Paper className={styles.paper}>
-          <form onSubmit={changePassword}>
-            <Grid container spacing={24}>
-              <Grid item xs={12}>
-                <Typography gutterBottom variant="h5" align="center">
-                  Change Password
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Current Password"
-                  className={styles.password}
-                  type="password"
-                  autoComplete="current-password"
-                  onChange={(e) => {
-                    setState({ ...state, password: e.target.value });
-                  }}
-                  value={state.password}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="New Password"
-                  className={styles.password}
-                  type="password"
-                  autoComplete="new-password"
-                  onChange={(e) => {
-                    setState({ ...state, newPassword: e.target.value });
-                  }}
-                  error={
-                    state.newPassword.length < 8 &&
-                    state.newPassword.length != 0
-                  }
-                  value={state.newPassword}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Confirm New Password"
-                  className={styles.password}
-                  type="password"
-                  autoComplete="new-password"
-                  onChange={(e) => {
-                    setState({ ...state, confirmNewPassword: e.target.value });
-                  }}
-                  error={state.newPassword != state.confirmNewPassword}
-                  value={state.confirmNewPassword}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                {state.progress ? (
-                  <Grid container justifySelf="center">
-                    <CircularProgress />
-                  </Grid>
-                ) : (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    className={styles.button}
-                  >
-                    Submit
-                  </Button>
-                )}
-              </Grid>
-            </Grid>
-          </form>
-        </Paper>
-      </Grid>
-    </div>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
+        <Avatar sx={{ backgroundColor: "secondary.main" }}>
+          <LockOutlined />
+        </Avatar>
+
+        <Typography variant="h5" component="h1">
+          Update Password
+        </Typography>
+
+        <Stack
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          spacing={2}
+          alignItems="center"
+          width="100%"
+        >
+          <Controller
+            name="password"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="password"
+                type="password"
+                placeholder="Current password"
+                required
+                fullWidth
+                autoComplete="password"
+                autoFocus
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          <Controller
+            name="newPassword"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="newPassword"
+                type="password"
+                placeholder="New Password"
+                required
+                fullWidth
+                autoComplete="new-password"
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          <Controller
+            name="newPasswordConfirmation"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                id="newPasswordConfirmation"
+                type="password"
+                placeholder="New password (confirmation)"
+                required
+                fullWidth
+                autoComplete="new-password"
+                error={fieldState.invalid}
+                helperText={fieldState.error?.message}
+              ></TextField>
+            )}
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={!isValid || isSubmitting}
+          >
+            Submit
+          </Button>
+        </Stack>
+      </Stack>
+    </Container>
   );
 }

@@ -137,10 +137,9 @@ export async function changePassword(
 
   try {
     await bindAsUser(client, userID, oldPassword);
-  } catch (_) {
-    const err = new Error("invalid old password");
-    (err as any).status = 401;
-    throw err;
+  } catch (err) {
+    console.error("changePassword:", err);
+    throw new Error("invalid old password");
   } finally {
     await unbind(client);
   }
