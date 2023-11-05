@@ -5,6 +5,11 @@ import { auth } from "@/lib/ldap";
 import { NextApiHandler } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
+export type ApiLoginParams = {
+  loginName: string;
+  password: string;
+};
+
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const { userID, password } = await req.json();
