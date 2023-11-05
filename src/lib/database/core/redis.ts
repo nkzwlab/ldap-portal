@@ -1,6 +1,6 @@
 import { env } from "../../env";
 import { AbstractRepository } from "./interface";
-import { RediSearchSchema, SchemaFieldTypes, createClient } from "redis";
+import { commandOptions, createClient } from "redis";
 import { RedisJSON } from "@redis/json/dist/commands";
 import { StringKeysOf, StringPropertiesOf } from "../../types";
 import { applicationFromJson } from "../application";
@@ -53,7 +53,8 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
   // WARNING: This *unsafely* convert raw JSON data into destination type.
   async getAllEntries(): Promise<T[]> {
     const keys = await this.client.keys(this.prefix);
-    const entries = await this.client.mGet(keys);
+    const options = commandOptions({});
+    const entries = await this.client.mGet(options, keys);
     const nonEmptyEntries = entries.filter((v) => v !== null) as T[];
     return nonEmptyEntries;
   }
