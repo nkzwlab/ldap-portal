@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Application, getRepository } from "../database/application";
+import { Application } from "../database/application";
 import axios from "axios";
 
 const API_PATH_APPLICATIONS = "/api/register/applications";

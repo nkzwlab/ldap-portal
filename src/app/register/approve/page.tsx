@@ -16,6 +16,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useApplications } from "@/lib/hooks/applications";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { Application } from "@/lib/database/application";
+import { useApproval } from "@/lib/hooks/approval";
 
 const Approve = () => {
   const applications = useApplications();
@@ -32,7 +35,9 @@ const Approve = () => {
         <TableRow key={index}>
           <TableCell>{application.loginName}</TableCell>
           <TableCell align="right">{application.email}</TableCell>
-          <TableCell align="right">{application.token}</TableCell>
+          <TableCell align="right">
+            <ApproveButton application={application} />
+          </TableCell>
         </TableRow>
       ))
     : null;
@@ -62,6 +67,38 @@ const Approve = () => {
         </Button>
       </Stack>
     </Container>
+  );
+};
+
+interface ApproveButtonProps {
+  application: Application;
+}
+
+const ApproveButton = ({ application }: ApproveButtonProps) => {
+  const { approve, result } = useApproval(application.token);
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isSubmitted },
+  } = useForm<{}>();
+
+  const onSubmit: SubmitHandler<{}> = async () => {
+    await approve();
+  };
+
+  const approveText = result?.success ? "Approved" : "Approve";
+
+  return (
+    <form onSubmit={onSubmit} noValidate>
+      <Button
+        type="submit"
+        variant="contained"
+        onClick={handleSubmit(onSubmit)}
+        disabled={isSubmitting || (isSubmitted && result?.success)}
+      >
+        {approveText}
+      </Button>
+    </form>
   );
 };
 
