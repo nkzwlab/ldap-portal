@@ -36,6 +36,8 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   const repository = await getRepository();
-  const applications = repository.getAllEntries();
+  const applications = await repository.getAllEntries();
+  console.log("GET /api/register/applications:", { applications });
+
   return NextResponse.json({ success: true, applications });
 };

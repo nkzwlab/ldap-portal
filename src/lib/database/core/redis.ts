@@ -52,9 +52,20 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
 
   // WARNING: This *unsafely* convert raw JSON data into destination type.
   async getAllEntries(): Promise<T[]> {
-    const keys = await this.client.keys(this.prefix);
-    const options = commandOptions({});
-    const entries = await this.client.mGet(options, keys);
+    const query = `${this.prefix}*`;
+    const keys = await this.client.keys(query);
+    console.log("getAllEntrries:", { keys });
+    if (keys.length <= 0) {
+      console.log("getAllEntrries: keys are 0 length. Retuning empty array.");
+      cker;
+      return [];
+    }
+
+    const getAllPromises = keys.map((key) => this.client.hGetAll(key));
+    const entries = await Promise.all(getAllPromises);
+
+    console.log("getAllEntrries:", { entries });
+
     const nonEmptyEntries = entries.filter((v) => v !== null) as T[];
     return nonEmptyEntries;
   }

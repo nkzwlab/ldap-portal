@@ -12,7 +12,10 @@ export const useApplications = (): Application[] | null => {
       const resp = await axios.get(API_PATH_APPLICATIONS, {
         withCredentials: true,
       });
-      setApplications(resp.data);
+      console.log("useApplications: typefo data =", typeof resp.data);
+      console.log("useApplications: data", resp.data);
+
+      setApplications(resp.data.applications);
     };
 
     getApplications();

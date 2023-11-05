@@ -19,18 +19,23 @@ import { useApplications } from "@/lib/hooks/applications";
 
 const Approve = () => {
   const applications = useApplications();
-  console.log({ applications });
+  console.log("Approve:", { applications });
 
-  const rows =
-    applications !== null
-      ? applications.map((application, index) => (
-          <TableRow key={index}>
-            <TableCell>{application.loginName}</TableCell>
-            <TableCell align="right">{application.email}</TableCell>
-            <TableCell align="right">{application.token}</TableCell>
-          </TableRow>
-        ))
-      : null;
+  if (applications === null) {
+    console.log("Approve: applications are null");
+  }
+  console.log("Approve: typeof applications =", typeof applications);
+  console.log("Approve: typeof applications.map =", typeof applications?.map);
+
+  const rows = Array.isArray(applications)
+    ? applications.map((application, index) => (
+        <TableRow key={index}>
+          <TableCell>{application.loginName}</TableCell>
+          <TableCell align="right">{application.email}</TableCell>
+          <TableCell align="right">{application.token}</TableCell>
+        </TableRow>
+      ))
+    : null;
 
   return (
     <Container component="main" maxWidth="xs">
