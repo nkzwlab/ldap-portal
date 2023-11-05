@@ -16,7 +16,7 @@ import {
 import { LockOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { ApiLoginParams } from "../api/auth/route";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const API_PATH_LOGIN = "/api/auth";
 

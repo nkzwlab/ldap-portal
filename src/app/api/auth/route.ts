@@ -12,12 +12,12 @@ export type ApiLoginParams = {
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const { userID, password } = await req.json();
-    const authSuccess = await auth(userID, password);
+    const { loginName, password } = await req.json();
+    const authSuccess = await auth(loginName, password);
 
     if (authSuccess) {
-      const token = await signToken(userID);
-      const res = NextResponse.json({ ok: true });
+      const token = await signToken(loginName);
+      const res = NextResponse.json({ success: true });
       setCookie(res, COOKIE_NAME_TOKEN, token);
       return res;
     } else {
