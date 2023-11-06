@@ -43,8 +43,12 @@ export const usePutPubkey = (): PutPubkey => {
   const [result, setResult] = useState<PutPubkeyResult | null>(null);
 
   const putPubkey = async (pubkeys: string[]) => {
+    const nonEmptyPubkeys = pubkeys.filter(
+      (p) => typeof p === "string" || p !== ""
+    );
+
     const resp = await axios.put(API_PATH_PUBKEYS, {
-      pubkeys,
+      pubkeys: nonEmptyPubkeys,
     });
 
     const result = resp.data as PutPubkeyResult;

@@ -46,7 +46,6 @@ export default function Pubkey() {
   });
 
   const onSubmit: SubmitHandler<Schema> = async (data) => {
-    console.log("onSubmit:", { data });
     const pubkeys = data.pubkeys.map(({ value }) => value);
     await putPubkeys(pubkeys);
     reloadCurrentPubkey();
