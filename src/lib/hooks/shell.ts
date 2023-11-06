@@ -4,8 +4,13 @@ import { Shell } from "../types";
 
 const API_PATH_SHELL = "/api/shell";
 
-export const useShell = (): Shell | null => {
+export const useShell = (): [
+  currentShell: Shell | null,
+  reload: () => void
+] => {
   const [shell, setShell] = useState<Shell | null>(null);
+  const [reloadCount, setReloadCount] = useState<number>(0);
+  const reload = () => setReloadCount(reloadCount + 1);
 
   useEffect(() => {
     const getShell = async () => {
@@ -14,12 +19,13 @@ export const useShell = (): Shell | null => {
       });
 
       setShell(resp.data.shell);
+      console.log({ setShell: resp.data.shell });
     };
 
     getShell();
-  }, []);
+  }, [reloadCount]);
 
-  return shell;
+  return [shell, reload];
 };
 
 export type UpdateShell = {

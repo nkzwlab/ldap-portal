@@ -10,11 +10,13 @@ import {
   Alert,
   Container,
   CssBaseline,
+  FormControl,
   InputLabel,
   MenuItem,
   Select,
   Snackbar,
   Stack,
+  TextField,
 } from "@mui/material";
 import { Schema, schema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,27 +25,39 @@ import { shells } from "@/lib/types";
 export default function Shell() {
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const currentShell = useShell();
+  const [currentShell, reloadCurrentShell] = useShell();
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting, isSubmitted },
+    setValue,
+    formState: { isSubmitting },
   } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: { shell: currentShell ?? undefined },
+    defaultValues: { shell: "/bin/bash" },
   });
 
   const { updateShell, result } = useUpdateShell();
 
   const onSubmit: SubmitHandler<Schema> = async ({ shell }) => {
     await updateShell(shell);
+    reloadCurrentShell();
     setAlertOpen(true);
   };
 
-  useCallback(() => {
+  useEffect(() => {
     setAlertOpen(!!result?.success);
   }, [result]);
+
+  useEffect(() => {
+    if (currentShell === null) {
+      console.log("shell effect: result or curretnShel is null");
+      return;
+    }
+
+    console.log("shell effect: result is not null");
+    setValue("shell", currentShell);
+  }, [result, currentShell, setValue]);
 
   const handleAlertClose = (
     _event?: React.SyntheticEvent | Event,
@@ -83,21 +97,20 @@ export default function Shell() {
             name="shell"
             control={control}
             render={({ field, fieldState }) => (
-              <>
-                <InputLabel id="select-shell">Shell</InputLabel>
-                <Select
+              <FormControl fullWidth>
+                <TextField
                   {...field}
-                  labelId="select-shell"
                   id="loginName"
                   label="Shell"
+                  select
                   required
                   fullWidth
                   autoComplete="loginName"
                   error={fieldState.invalid}
                 >
                   {menuItems}
-                </Select>
-              </>
+                </TextField>
+              </FormControl>
             )}
           />
 

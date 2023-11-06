@@ -10,8 +10,9 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     return new NextResponse(null, { status: statusUnauthorized });
   }
 
-  const shell = await ldap.getShell(userID);
-  return NextResponse.json({ ok: true, shell });
+  const shells = await ldap.getShell(userID);
+  const shell = shells.length > 0 ? shells[0] : null;
+  return NextResponse.json({ success: true, shell });
 };
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
