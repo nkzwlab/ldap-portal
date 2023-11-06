@@ -127,6 +127,24 @@ export async function delPubkey(
   }
 }
 
+export async function replacePubkeys(
+  userID: string,
+  pubkeys: string[]
+): Promise<boolean> {
+  const client = createClient(ldapOption);
+  const base = userDN(userID);
+
+  try {
+    await bindAsAdmin(client);
+    await replaceAttributes(client, base, ATTRIBUTE_PUBKEY, pubkeys);
+
+    return true;
+  } catch (err) {
+    throw err;
+  } finally {
+    await unbind(client);
+  }
+}
 export async function changePassword(
   userID: string,
   oldPassword: string,
@@ -461,6 +479,21 @@ export async function replaceAttribute(
   value: string
 ) {
   const attribute = new ldap.Attribute({ type: attributeName, vals: value });
+  const options = {
+    operation: OPERATION_REPLACE,
+    modification: attribute,
+  };
+
+  return modifyAttribute(client, base, options);
+}
+
+export async function replaceAttributes(
+  client: LdapClient,
+  base: string,
+  attributeName: string,
+  values: string[]
+) {
+  const attribute = new ldap.Attribute({ type: attributeName, vals: values });
   const options = {
     operation: OPERATION_REPLACE,
     modification: attribute,
