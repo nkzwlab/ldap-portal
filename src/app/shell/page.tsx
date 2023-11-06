@@ -1,43 +1,66 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import assert from "assert";
-import axios, { Axios, AxiosError } from "axios";
-import Grid from "@mui/material/Grid";
-import InputLabel from "@mui/material/InputLabel";
+import React, { useCallback, useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Snackbar from "@mui/material/Snackbar";
-import SnackbarContent from "@mui/material/SnackbarContent";
-import CircularProgress from "@mui/material/CircularProgress";
 
-import styles from "./page.module.css";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useShell, useUpdateShell } from "@/lib/hooks/shell";
-import { Container, CssBaseline, Stack } from "@mui/material";
+import {
+  Alert,
+  Container,
+  CssBaseline,
+  InputLabel,
+  MenuItem,
+  Select,
+  Snackbar,
+  Stack,
+} from "@mui/material";
 import { Schema, schema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { shells } from "@/lib/types";
 
 export default function Shell() {
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const currentShell = useShell();
+
   const {
     control,
     handleSubmit,
     formState: { isSubmitting, isSubmitted },
-  } = useForm<Schema>({ resolver: zodResolver(schema) });
+  } = useForm<Schema>({
+    resolver: zodResolver(schema),
+    defaultValues: { shell: currentShell ?? undefined },
+  });
 
-  const currentShell = useShell();
   const { updateShell, result } = useUpdateShell();
 
   const onSubmit: SubmitHandler<Schema> = async ({ shell }) => {
     await updateShell(shell);
+    setAlertOpen(true);
   };
 
-  TODO: select shell
+  useCallback(() => {
+    setAlertOpen(!!result?.success);
+  }, [result]);
+
+  const handleAlertClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setAlertOpen(false);
+  };
+
+  const menuItems = shells.map((shell) => (
+    <MenuItem key={shell} value={shell}>
+      {shell}
+    </MenuItem>
+  ));
 
   return (
     <Container component="main" maxWidth="xs">
@@ -57,57 +80,24 @@ export default function Shell() {
         >
           {/* Text field for login name. Conrtolled by React-Hook-Form */}
           <Controller
-            name="loginName"
+            name="shell"
             control={control}
             render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                id="loginName"
-                label="Login name"
-                required
-                fullWidth
-                autoComplete="loginName"
-                autoFocus
-                error={fieldState.invalid}
-                helperText={fieldState.error?.message}
-              ></TextField>
-            )}
-          />
-
-          {/* Text field for password. Controlled by React-Hook-Form */}
-          <Controller
-            name="password"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                id="password"
-                type="password"
-                label="Password"
-                required
-                fullWidth
-                autoComplete="password"
-                error={fieldState.invalid}
-                helperText={fieldState.error?.message}
-              ></TextField>
-            )}
-          />
-
-          {/* Text field for password confirmation. Controlled by React-Hook-Form */}
-          <Controller
-            name="passwordConfirmation"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                id="passwordConfirmation"
-                type="password"
-                label="Password confirmation"
-                required
-                fullWidth
-                error={fieldState.invalid}
-                helperText={fieldState.error?.message}
-              ></TextField>
+              <>
+                <InputLabel id="select-shell">Shell</InputLabel>
+                <Select
+                  {...field}
+                  labelId="select-shell"
+                  id="loginName"
+                  label="Shell"
+                  required
+                  fullWidth
+                  autoComplete="loginName"
+                  error={fieldState.invalid}
+                >
+                  {menuItems}
+                </Select>
+              </>
             )}
           />
 
@@ -115,11 +105,25 @@ export default function Shell() {
             type="submit"
             variant="contained"
             fullWidth
-            disabled={isSubmitting || isSubmitted}
+            disabled={isSubmitting}
           >
             Submit
           </Button>
         </Stack>
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={6000}
+          onClose={handleAlertClose}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            Updated login shell successfully.
+          </Alert>
+        </Snackbar>
       </Stack>
     </Container>
   );

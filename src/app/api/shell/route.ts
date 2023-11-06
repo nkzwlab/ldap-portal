@@ -30,5 +30,5 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   await ldap.setShell(userID, shell);
-  return NextResponse.json({ ok: true, shell });
+  return NextResponse.json({ success: true, shell });
 };
