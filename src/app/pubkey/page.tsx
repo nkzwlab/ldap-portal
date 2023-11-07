@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
 import {
+  Control,
   Controller,
   SubmitHandler,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -14,10 +17,6 @@ import {
   Alert,
   Container,
   CssBaseline,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Snackbar,
   Stack,
   TextField,
@@ -29,13 +28,12 @@ import { usePubkeys, usePutPubkey } from "@/lib/hooks/pubkey";
 export default function Pubkey() {
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const [currentPubkeys, reloadCurrentPubkey] = usePubkeys();
+  const [currentPubkeys] = usePubkeys();
   const { putPubkeys, result } = usePutPubkey();
 
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { isSubmitting },
   } = useForm<Schema>({
     resolver: zodResolver(schema),
@@ -48,7 +46,6 @@ export default function Pubkey() {
   const onSubmit: SubmitHandler<Schema> = async (data) => {
     const pubkeys = data.pubkeys.map(({ value }) => value);
     await putPubkeys(pubkeys);
-    reloadCurrentPubkey();
     setAlertOpen(true);
   };
 
@@ -62,16 +59,20 @@ export default function Pubkey() {
       return;
     }
 
-    console.log("pubkey effect: result is not null", currentPubkeys);
+    if (fields.length > 0) {
+      console.log("pubkey effect: fields are not empty. Skip adding rows");
+      return;
+    }
 
     for (const pubkey of currentPubkeys) {
       append({ value: pubkey });
     }
 
-    if (currentPubkeys.length <= 0) {
-      append({ value: "" });
-    }
-  }, [append, currentPubkeys, setValue]);
+    // Last field is "add" row
+    append({ value: "" });
+    // We depend on fields.length in this effect, howoever we don't want to re-run even if fields changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPubkeys]);
 
   const handleAlertClose = (
     _event?: React.SyntheticEvent | Event,
@@ -84,40 +85,25 @@ export default function Pubkey() {
     setAlertOpen(false);
   };
 
-  const textFields = fields.map((item, index, arr) => (
-    <Controller
-      name={`pubkeys.${index}.value`}
+  const textFields = fields.map((_item, index, { length }) => (
+    <PubkeyRow
       key={index}
-      control={control}
-      render={({ field, fieldState }) => (
-        <Stack>
-          <TextField
-            {...field}
-            id={`pubkeys-${index}`}
-            label={`Public key ${index + 1}`}
-            fullWidth
-            type="text"
-            autoComplete="publickey"
-            error={fieldState.invalid}
-          />
-          <Button
-            type="button"
-            variant="contained"
-            onClick={() => remove(index)}
-          >
-            Delete
-          </Button>
-        </Stack>
-      )}
+      {...{
+        action: length - 1 === index ? "add" : "delete",
+        index,
+        control,
+        append,
+        remove,
+      }}
     />
   ));
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <CssBaseline />
       <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
         <Typography variant="h5" component="h1">
-          Change login pubkey
+          Add/Remove SSH public key
         </Typography>
 
         <Stack
@@ -150,10 +136,75 @@ export default function Pubkey() {
             variant="filled"
             sx={{ width: "100%" }}
           >
-            Updated login pubkey successfully.
+            Updated SSH pubkeys successfully.
           </Alert>
         </Snackbar>
       </Stack>
     </Container>
   );
 }
+
+interface PubkeyRowProps {
+  action: "add" | "delete";
+  index: number;
+  control: Control<Schema>;
+  append: UseFieldArrayAppend<Schema>;
+  remove: UseFieldArrayRemove;
+}
+
+const PubkeyRow = ({
+  action,
+  control,
+  index,
+  append,
+  remove,
+}: PubkeyRowProps) => {
+  let button: ReactElement;
+  switch (action) {
+    case "add":
+      button = (
+        <Button
+          type="button"
+          variant="contained"
+          color="secondary"
+          onClick={() => append({ value: "" })}
+        >
+          Add
+        </Button>
+      );
+      break;
+    case "delete":
+      button = (
+        <Button
+          type="button"
+          variant="contained"
+          color="error"
+          onClick={() => remove(index)}
+        >
+          Delete
+        </Button>
+      );
+      break;
+  }
+
+  return (
+    <Controller
+      name={`pubkeys.${index}.value`}
+      key={index}
+      control={control}
+      render={({ field, fieldState }) => (
+        <Stack direction="row" spacing={2} width="100%">
+          <TextField
+            {...field}
+            id={`pubkeys-${index}`}
+            label={`Public key ${index + 1}`}
+            fullWidth
+            type="text"
+            autoComplete="publickey"
+          />
+          {button}
+        </Stack>
+      )}
+    />
+  );
+};
