@@ -8,6 +8,7 @@ import {
 export interface AlertProps extends PropsWithChildren {
   open: boolean;
   handleClose: () => void;
+  severity: MuiAlertProps["severity"];
 }
 
 export default function Alert({ open, handleClose, children }: AlertProps) {
