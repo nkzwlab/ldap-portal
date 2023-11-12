@@ -1,6 +1,10 @@
 import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
-import { statusBadRequest, statusOk, statusUnauthorized } from "@/lib/http";
+import {
+  statusBadRequest,
+  statusOk,
+  statusUnauthorized,
+} from "@/lib/http/http";
 import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

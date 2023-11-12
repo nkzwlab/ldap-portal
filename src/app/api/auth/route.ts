@@ -1,6 +1,6 @@
 import { COOKIE_NAME_TOKEN, signToken } from "@/lib/auth";
 import { setCookie } from "@/lib/cookie";
-import { statusInternalServerError, statusUnauthorized } from "@/lib/http";
+import { statusInternalServerError, statusUnauthorized } from "@/lib/http/http";
 import { auth } from "@/lib/ldap";
 import { NextApiHandler } from "next";
 import { NextRequest, NextResponse } from "next/server";

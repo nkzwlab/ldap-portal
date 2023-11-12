@@ -1,4 +1,4 @@
-import { statusBadRequest, statusUnauthorized } from "@/lib/http";
+import { statusBadRequest, statusUnauthorized } from "@/lib/http/http";
 import { NextRequest, NextResponse } from "next/server";
 
 import * as ldap from "@/lib/ldap";
