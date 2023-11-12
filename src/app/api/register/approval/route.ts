@@ -4,7 +4,7 @@ import {
   statusInternalServerError,
   statusNotFound,
   statusOk,
-} from "@/lib/http/http";
+} from "@/lib/http/status";
 import { AddUserParams, addUser } from "@/lib/ldap";
 import { EntryAlreadyExistsError } from "ldapjs";
 import { NextRequest, NextResponse } from "next/server";

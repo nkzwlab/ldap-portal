@@ -4,7 +4,7 @@ import {
   statusBadRequest,
   statusOk,
   statusUnauthorized,
-} from "@/lib/http/http";
+} from "@/lib/http/status";
 import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

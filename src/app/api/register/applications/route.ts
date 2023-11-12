@@ -1,7 +1,7 @@
 import { HEADER_USERID } from "@/lib/auth";
 import { getRepository } from "@/lib/database/application";
 import { env } from "@/lib/env";
-import { statusUnauthorized } from "@/lib/http/http";
+import { statusUnauthorized } from "@/lib/http/status";
 import { isUserInGroup } from "@/lib/ldap";
 import { NextRequest, NextResponse } from "next/server";
 
