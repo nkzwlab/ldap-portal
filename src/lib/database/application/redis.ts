@@ -11,6 +11,12 @@ export class RedisApplicationRepository
   extends RedisRepository<Application>
   implements ApplicationRepository
 {
+  async getAllEntries(): Promise<Application[]> {
+    const entries = await super.getAllEntries();
+    entries.sort(({ loginName: a }, { loginName: b }) => a.localeCompare(b));
+    return entries;
+  }
+
   async getApplicationByToken(token: string): Promise<Application | null> {
     console.log(`searching entry for token: '${token}'`);
     const physicalKey = this.internalKey(token);
