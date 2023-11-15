@@ -119,7 +119,7 @@ const Register: NextPage = () => {
             type="submit"
             variant="contained"
             fullWidth
-            disabled={isSubmitting || isSubmitted}
+            disabled={isSubmitting}
           >
             Submit
           </Button>
