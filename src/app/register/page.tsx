@@ -15,12 +15,22 @@ import {
   Typography,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { type ApiRegisterParams } from "../api/register/route";
+import { useRouter } from "next/navigation";
+import Alert from "@/lib/components/Alert";
 
 const API_PATH_REGISTER = "/api/register";
 
 const Register: NextPage = () => {
+  const router = useRouter();
+
+  const [successOpen, setSuccessOpen] = React.useState(false);
+  const successMessage =
+    "Registration form has been sent successfully. Redirecting to login page in 6s.";
+  const [errorOpen, setErrorOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
   const {
     control,
     handleSubmit,
@@ -30,12 +40,30 @@ const Register: NextPage = () => {
   const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
     console.log("on submit");
     const params: ApiRegisterParams = { loginName, password };
-    const resp = await axios.post(API_PATH_REGISTER, params);
+    let resp: AxiosResponse | undefined;
 
-    if (resp.data.success) {
-      alert("Registration form has been sent successfully.");
-    } else {
-      alert("Failed to send registration form.");
+    try {
+      resp = await axios.post(API_PATH_REGISTER, params);
+      if (resp?.data.success) {
+        setSuccessOpen(true);
+      } else {
+        throw new Error(
+          `Failed to submit registration form: ${
+            resp?.data?.error ?? "unknown error"
+          }`
+        );
+      }
+    } catch (err) {
+      console.log({ err });
+      let message =
+        (err as Error)?.message ?? "An error occured while submitting the form";
+
+      if (err instanceof AxiosError && err.response?.data.error) {
+        message = err.response.data.error;
+      }
+
+      setErrorMessage(message);
+      setErrorOpen(true);
     }
   };
 
@@ -124,6 +152,20 @@ const Register: NextPage = () => {
             Submit
           </Button>
         </Stack>
+        <Alert
+          open={successOpen}
+          handleClose={() => setSuccessOpen(false)}
+          severity="success"
+        >
+          {successMessage}
+        </Alert>
+        <Alert
+          open={errorOpen}
+          handleClose={() => setErrorOpen(false)}
+          severity="error"
+        >
+          {errorMessage}
+        </Alert>
       </Stack>
     </Container>
   );
