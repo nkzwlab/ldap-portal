@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
 import { Container, CssBaseline, Stack } from "@mui/material";
+import Link from "next/link";
 
 export default function Index() {
   const router = useRouter();
@@ -28,12 +29,8 @@ export default function Index() {
             </Typography>
           </CardContent>
           <CardActions>
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => router.push("/password")}
-            >
-              Password
+            <Button size="small" color="primary">
+              <Link href="/password">Password</Link>
             </Button>
           </CardActions>
         </Card>
@@ -45,12 +42,8 @@ export default function Index() {
             <Typography component="p">Linuxのログインシェルの変更。</Typography>
           </CardContent>
           <CardActions>
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => router.push("/shell")}
-            >
-              Shell
+            <Button size="small" color="primary">
+              <Link href="/shell">Shell</Link>
             </Button>
           </CardActions>
         </Card>
@@ -62,12 +55,8 @@ export default function Index() {
             <Typography component="p">LinuxのSSHの公開鍵登録。</Typography>
           </CardContent>
           <CardActions>
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => router.push("/pubkey")}
-            >
-              Pubkey
+            <Button size="small" color="primary">
+              <Link href="/pubkey">Pubkey</Link>
             </Button>
           </CardActions>
         </Card>
