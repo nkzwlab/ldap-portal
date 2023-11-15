@@ -169,6 +169,11 @@ const Register: NextPage = () => {
         >
           {errorMessage}
         </Alert>
+
+        <Typography variant="body2" color="GrayText" align="center">
+          Your submission will be notified to the operators. Once operators
+          approved your application, you will be able to login to the service.
+        </Typography>
       </Stack>
     </Container>
   );
