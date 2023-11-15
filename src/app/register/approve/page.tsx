@@ -18,7 +18,8 @@ import {
 import { useApplications } from "@/lib/hooks/applications";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Application } from "@/lib/database/application";
-import { useApproval } from "@/lib/hooks/approval";
+import { ApprovalState, useApproval } from "@/lib/hooks/approval";
+import Alert from "@/lib/components/Alert";
 
 const Approve = () => {
   const applications = useApplications();
@@ -73,8 +74,20 @@ interface ApproveButtonProps {
   application: Application;
 }
 
+const formatSuccessMessage = (person: string) =>
+  `Approved application from ${person} successfully.`;
+const formatErrorMessage = (person: string, error?: string): string | null =>
+  typeof error !== "undefined"
+    ? `Failed to approve application from ${person}: ${error}`
+    : null;
+
 const ApproveButton = ({ application }: ApproveButtonProps) => {
-  const { approve, result } = useApproval(application.token);
+  const { approve, result, state, setState } = useApproval(application.token);
+
+  const successOpen = state === "approved";
+  const successMessage = formatSuccessMessage(application.loginName);
+  const errorOpen = state === "error";
+  const errorMessage = formatErrorMessage(application.loginName, result?.error);
 
   const {
     handleSubmit,
@@ -85,19 +98,34 @@ const ApproveButton = ({ application }: ApproveButtonProps) => {
     await approve();
   };
 
-  const approveText = result?.success ? "Approved" : "Approve";
+  const approveTextMap: { [key in ApprovalState]: "Approve" | "Approved" } = {
+    start: "Approve",
+    loading: "Approve",
+    error: "Approve",
+    approved: "Approved",
+    end: "Approved",
+  };
+  const approveText = approveTextMap[state];
 
   return (
-    <form onSubmit={onSubmit} noValidate>
-      <Button
-        type="submit"
-        variant="contained"
-        onClick={handleSubmit(onSubmit)}
-        disabled={isSubmitting || (isSubmitted && result?.success)}
-      >
-        {approveText}
-      </Button>
-    </form>
+    <>
+      <form onSubmit={onSubmit} noValidate>
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={handleSubmit(onSubmit)}
+          disabled={isSubmitting || (isSubmitted && result?.success)}
+        >
+          {approveText}
+        </Button>
+      </form>
+      <Alert open={successOpen} handleClose={() => {}} severity="success">
+        {successMessage}
+      </Alert>
+      <Alert open={errorOpen} handleClose={() => {}} severity="error">
+        {errorMessage}
+      </Alert>
+    </>
   );
 };
 
