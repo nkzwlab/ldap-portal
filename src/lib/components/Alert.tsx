@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useCallback, useState } from "react";
 import {
   Alert as MuiAlert,
   AlertProps as MuiAlertProps,
@@ -12,6 +12,10 @@ export interface AlertProps extends PropsWithChildren {
 }
 
 export default function Alert({ open, handleClose, children }: AlertProps) {
+  const callback = useCallback(() => {
+    handleClose();
+  }, [handleClose]);
+
   const handleAlertClose = (
     _event?: React.SyntheticEvent | Event,
     reason?: string

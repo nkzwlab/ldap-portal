@@ -5,6 +5,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Schema, schema } from "./schema";
 import {
+  Alert,
   Avatar,
   Button,
   Container,
@@ -14,14 +15,19 @@ import {
   Typography,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiLoginParams } from "../api/auth/route";
 import { useRouter } from "next/navigation";
+import { statusUnauthorized } from "@/lib/http/status";
+// import Alert from "@/lib/components/Alert";
 
 const API_PATH_LOGIN = "/api/auth";
 
 export default function Login() {
   const router = useRouter();
+
+  const [errorOpen, setErrorOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const {
     control,
@@ -32,12 +38,27 @@ export default function Login() {
   const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
     console.log("on submit");
     const params: ApiLoginParams = { loginName, password };
-    const resp = await axios.post(API_PATH_LOGIN, params);
 
-    if (resp.data.success) {
-      router.push("/");
-    } else {
-      alert("Failed to send registration form.");
+    let resp: AxiosResponse | undefined = undefined;
+    try {
+      resp = await axios.post(API_PATH_LOGIN, params);
+
+      if (resp?.data.success) {
+        router.push("/");
+      }
+    } catch (err) {
+      console.log({ err });
+      let message =
+        (err as Error)?.message ?? "An error occured while authenticating";
+
+      if (err instanceof AxiosError && err.status === statusUnauthorized) {
+        message = "Invalid login name or password";
+      } else if (resp?.data?.error) {
+        message = resp.data.error;
+      }
+
+      setErrorMessage(message);
+      setErrorOpen(true);
     }
   };
 
@@ -108,6 +129,13 @@ export default function Login() {
             Submit
           </Button>
         </Stack>
+        <Alert
+          open={errorOpen}
+          handleClose={() => setErrorOpen(false)}
+          severity="error"
+        >
+          {errorMessage}
+        </Alert>
       </Stack>
     </Container>
   );
