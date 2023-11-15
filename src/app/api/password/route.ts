@@ -12,7 +12,7 @@ export type ApiPasswordPutParams = {
 export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   const userID = req.headers.get(HEADER_USERID);
   if (userID === null) {
-    console.error("GET /api/shell: userID not found in header");
+    console.error("GET /api/password: userID not found in header");
     return new NextResponse(null, { status: statusUnauthorized });
   }
 
@@ -29,7 +29,10 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   try {
     success = await ldap.changePassword(userID, password, newPassword);
   } catch (e) {
-    return NextResponse.json({ success: false, error: e });
+    return NextResponse.json({
+      success: false,
+      error: (e as any)?.message ?? "Unexpected LDAP error",
+    });
   }
 
   return NextResponse.json({ success });
