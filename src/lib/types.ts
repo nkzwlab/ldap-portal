@@ -38,3 +38,5 @@ export const shells = [
 ] as const;
 
 export type Shell = (typeof shells)[number];
+
+export type ApiState = "start" | "loading" | "success" | "error" | "end";

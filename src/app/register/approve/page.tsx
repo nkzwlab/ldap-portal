@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  Button,
   Container,
   CssBaseline,
   Paper,
@@ -16,12 +15,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useApplications } from "@/lib/hooks/applications";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { Application } from "@/lib/database/application";
-import { ApprovalState, useApproval } from "@/lib/hooks/approval";
-import Alert from "@/lib/components/Alert";
+import { useApproval } from "@/lib/hooks/approval";
+import { SubmitHandler } from "react-hook-form";
+import { ApiActionButton } from "@/lib/components/ApiActionButton";
+import { useDecline } from "@/lib/hooks/decline";
 
-const Approve = () => {
+export default function Approve() {
   const applications = useApplications();
   console.log("Approve:", { applications });
 
@@ -40,6 +40,9 @@ const Approve = () => {
           </TableCell>
           <TableCell align="right">
             <ApproveButton application={application} />
+          </TableCell>
+          <TableCell align="right">
+            <DeclineButton application={application} />
           </TableCell>
         </TableRow>
       ))
@@ -60,6 +63,7 @@ const Approve = () => {
                 <TableCell>Login name</TableCell>
                 <TableCell align="right">Email</TableCell>
                 <TableCell align="right">Approve</TableCell>
+                <TableCell align="right">Decline</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{rows}</TableBody>
@@ -68,65 +72,76 @@ const Approve = () => {
       </Stack>
     </Container>
   );
-};
+}
 
-interface ApproveButtonProps {
+interface ApplicationButtonProps {
   application: Application;
 }
 
 const formatSuccessMessage = (person: string) =>
   `Approved application from ${person} successfully.`;
-const formatErrorMessage = (person: string, error?: string): string | null =>
+const formatErrorMessage = (person: string, error?: string): string =>
   typeof error !== "undefined"
     ? `Failed to approve application from ${person}: ${error}`
-    : null;
+    : "";
 
-const ApproveButton = ({ application }: ApproveButtonProps) => {
-  const { approve, result, state, setState } = useApproval(application.token);
+const ApproveButton = ({ application }: ApplicationButtonProps) => {
+  const { approve, result, state } = useApproval(application.token);
 
-  const successOpen = state === "approved";
-  const successMessage = formatSuccessMessage(application.loginName);
-  const errorOpen = state === "error";
-  const errorMessage = formatErrorMessage(application.loginName, result?.error);
-
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isSubmitted },
-  } = useForm<{}>();
+  const successMessage = `Approved application from ${application.loginName} successfully.`;
+  const errorMessage =
+    typeof result?.error !== "undefined"
+      ? `Failed to approve application from ${application.loginName}: ${result.error}`
+      : "";
 
   const onSubmit: SubmitHandler<{}> = async () => {
     await approve();
   };
 
-  const approveTextMap: { [key in ApprovalState]: "Approve" | "Approved" } = {
-    start: "Approve",
-    loading: "Approve",
-    error: "Approve",
-    approved: "Approved",
-    end: "Approved",
-  };
-  const approveText = approveTextMap[state];
+  const doText = "Approve";
+  const doneText = "Approved";
 
   return (
-    <>
-      <form onSubmit={onSubmit} noValidate>
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit(onSubmit)}
-          disabled={isSubmitting || (isSubmitted && result?.success)}
-        >
-          {approveText}
-        </Button>
-      </form>
-      <Alert open={successOpen} handleClose={() => {}} severity="success">
-        {successMessage}
-      </Alert>
-      <Alert open={errorOpen} handleClose={() => {}} severity="error">
-        {errorMessage}
-      </Alert>
-    </>
+    <ApiActionButton
+      {...{
+        onSubmit,
+        state,
+        successMessage,
+        errorMessage,
+        doText,
+        doneText,
+      }}
+    />
   );
 };
 
-export default Approve;
+const DeclineButton = ({ application }: ApplicationButtonProps) => {
+  const { decline, result, state } = useDecline(application.token);
+
+  const successMessage = `Declined application from ${application.loginName}.`;
+  const errorMessage =
+    typeof result?.error !== "undefined"
+      ? `Failed to decline application from ${application.loginName}: ${result.error}`
+      : "";
+
+  const onSubmit: SubmitHandler<{}> = async () => {
+    await decline();
+  };
+
+  const doText = "Decline";
+  const doneText = "Declined";
+
+  return (
+    <ApiActionButton
+      {...{
+        color: "warning",
+        onSubmit,
+        state,
+        successMessage,
+        errorMessage,
+        doText,
+        doneText,
+      }}
+    />
+  );
+};

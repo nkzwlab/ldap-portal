@@ -1,16 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
+import { ApiState } from "../types";
 
 const API_PATH_APPROVE = "/api/register/approval";
 
 export type Approval = {
   approve: ApproveFunc;
   result: ApprovalResult | null;
-  state: ApprovalState;
-  setState: (state: ApprovalState) => void;
+  state: ApiState;
+  setState: (state: ApiState) => void;
 };
-
-export type ApprovalState = "start" | "loading" | "approved" | "error" | "end";
 
 export type ApproveFunc = () => Promise<void>;
 
@@ -21,19 +20,18 @@ export type ApprovalResult = {
 
 export const useApproval = (token: string): Approval => {
   const [result, setResult] = useState<ApprovalResult | null>(null);
-  const [state, setState] = useState<ApprovalState>("start");
+  const [state, setState] = useState<ApiState>("start");
+  const path = API_PATH_APPROVE + `/${token}`;
 
   const approve = async () => {
     setState("loading");
-    const resp = await axios.post(API_PATH_APPROVE, {
-      token,
-    });
+    const resp = await axios.post(path);
 
     const result = resp.data as ApprovalResult;
     setResult(result);
 
     if (result?.success) {
-      setState("approved");
+      setState("success");
     } else if (result?.error) {
       setState("error");
     }

@@ -9,10 +9,16 @@ import { AddUserParams, addUser } from "@/lib/ldap";
 import { EntryAlreadyExistsError } from "ldapjs";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest): Promise<NextResponse> => {
-  const { token } = await req.json();
+type PathParams = {
+  token: string;
+};
 
+export const POST = async (
+  req: NextRequest,
+  { params: { token } }: { params: PathParams }
+): Promise<NextResponse> => {
   if (typeof token !== "string") {
+    console.log({ token });
     return NextResponse.json(
       { error: "invalid token" },
       { status: statusBadRequest }
@@ -31,7 +37,6 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const params: AddUserParams = applicationToParams(application);
 
-  await repository.deleteEntry(token);
   let success = false;
 
   try {
@@ -45,6 +50,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     throw err;
+  }
+
+  if (success) {
+    await repository.deleteEntry(token);
   }
 
   const status = success ? statusOk : statusInternalServerError;
@@ -64,4 +73,31 @@ const applicationToParams = (application: Application): AddUserParams => {
   console.log("applicationToParams: output params:", params);
 
   return params;
+};
+
+export const DELETE = async (
+  req: NextRequest,
+  { params: { token } }: { params: PathParams }
+): Promise<NextResponse> => {
+  if (typeof token !== "string") {
+    console.log({ token });
+    return NextResponse.json(
+      { error: "invalid token" },
+      { status: statusBadRequest }
+    );
+  }
+
+  const repository = await getRepository();
+  const application = await repository.getApplicationByToken(token);
+
+  if (application === null) {
+    return NextResponse.json(
+      { error: "application not found with that token" },
+      { status: statusNotFound }
+    );
+  }
+
+  await repository.deleteEntry(token);
+
+  return NextResponse.json({ success: true }, { status: statusOk });
 };
