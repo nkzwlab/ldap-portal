@@ -23,8 +23,6 @@ import Alert from "@/lib/components/Alert";
 const API_PATH_PASSWORD = "/api/password";
 
 export default function Login() {
-  const router = useRouter();
-
   const [successOpen, setSuccessOpen] = React.useState(false);
   const successMessage = "Updated password successfully.";
   const [errorOpen, setErrorOpen] = React.useState(false);
