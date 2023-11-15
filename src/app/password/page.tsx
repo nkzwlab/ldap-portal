@@ -14,13 +14,22 @@ import {
   Typography,
 } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiPasswordPutParams } from "../api/password/route";
+import { useRouter } from "next/navigation";
+import { statusUnauthorized } from "@/lib/http/status";
+import Alert from "@/lib/components/Alert";
 
 const API_PATH_PASSWORD = "/api/password";
 
 export default function Login() {
+  const router = useRouter();
+
+  const [successOpen, setSuccessOpen] = React.useState(false);
+  const successMessage = "Updated password successfully.";
+  const [errorOpen, setErrorOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
   const {
     control,
     handleSubmit,
@@ -31,12 +40,33 @@ export default function Login() {
   const onSubmit: SubmitHandler<Schema> = async ({ password, newPassword }) => {
     console.log("on submit");
     const params: ApiPasswordPutParams = { password, newPassword };
-    const resp = await axios.put(API_PATH_PASSWORD, params);
+    let resp: AxiosResponse | undefined;
 
-    if (resp.data.success) {
-      alert("Updated password successfully.");
-    } else {
-      alert("Failed to update password.");
+    try {
+      resp = await axios.put(API_PATH_PASSWORD, params);
+      if (resp?.data.success) {
+        setSuccessOpen(true);
+      } else {
+        throw new Error(
+          `Updating password failed: ${resp?.data?.error ?? "unknown error"}`
+        );
+      }
+    } catch (err) {
+      console.log({ err });
+      let message =
+        (err as Error)?.message ?? "An error occured while authenticating";
+
+      if (
+        err instanceof AxiosError &&
+        err.response?.status === statusUnauthorized
+      ) {
+        message = "Invalid login name or password";
+      } else if (resp?.data?.error) {
+        message = resp.data.error;
+      }
+
+      setErrorMessage(message);
+      setErrorOpen(true);
     }
   };
 
@@ -124,6 +154,20 @@ export default function Login() {
             Submit
           </Button>
         </Stack>
+        <Alert
+          open={successOpen}
+          handleClose={() => setSuccessOpen(false)}
+          severity="success"
+        >
+          {successMessage}
+        </Alert>
+        <Alert
+          open={errorOpen}
+          handleClose={() => setErrorOpen(false)}
+          severity="error"
+        >
+          {errorMessage}
+        </Alert>
       </Stack>
     </Container>
   );
