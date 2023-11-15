@@ -11,7 +11,12 @@ export interface AlertProps extends PropsWithChildren {
   severity: MuiAlertProps["severity"];
 }
 
-export default function Alert({ open, handleClose, children }: AlertProps) {
+export default function Alert({
+  open,
+  handleClose,
+  children,
+  severity,
+}: AlertProps) {
   const callback = useCallback(() => {
     handleClose();
   }, [handleClose]);
@@ -31,7 +36,7 @@ export default function Alert({ open, handleClose, children }: AlertProps) {
     <Snackbar open={open} autoHideDuration={6000} onClose={handleAlertClose}>
       <MuiAlert
         onClose={handleAlertClose}
-        severity="success"
+        severity={severity}
         variant="filled"
         sx={{ width: "100%" }}
       >
