@@ -46,6 +46,9 @@ const Register: NextPage = () => {
       resp = await axios.post(API_PATH_REGISTER, params);
       if (resp?.data.success) {
         setSuccessOpen(true);
+        setTimeout(() => {
+          router.push("/login");
+        }, 6000);
       } else {
         throw new Error(
           `Failed to submit registration form: ${
