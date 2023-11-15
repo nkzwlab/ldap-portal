@@ -5,6 +5,7 @@ import ldap, {
   Client as LdapClient,
   SearchEntryObject,
   SearchOptions,
+  InvalidCredentialsError,
 } from "ldapjs";
 
 import { env } from "./env";
@@ -157,7 +158,11 @@ export async function changePassword(
     await bindAsUser(client, userID, oldPassword);
   } catch (err) {
     console.error("changePassword:", err);
-    throw new Error("invalid old password");
+    if (err instanceof InvalidCredentialsError) {
+      throw new Error("invalid old password");
+    } else {
+      throw err;
+    }
   } finally {
     await unbind(client);
   }
