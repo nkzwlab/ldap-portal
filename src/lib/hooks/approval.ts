@@ -31,11 +31,12 @@ export const useApproval = (token: string): Approval => {
 
     if (result?.success) {
       setState("success");
-    } else if (result?.error) {
-      setState("error");
     } else {
       setState("error");
-      result.error = "Unknown error";
+
+      if (typeof result?.error === "undefined") {
+        result.error = "Unknown error";
+      }
     }
 
     setResult(result);

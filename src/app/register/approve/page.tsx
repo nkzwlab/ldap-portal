@@ -86,7 +86,7 @@ const formatErrorMessage = (person: string, error?: string): string =>
     : "";
 
 const ApproveButton = ({ application }: ApplicationButtonProps) => {
-  const { approve, result, state } = useApproval(application.token);
+  const { approve, result, state, setState } = useApproval(application.token);
 
   const successMessage = `Approved application from ${application.loginName} successfully.`;
   const errorMessage =
@@ -106,6 +106,7 @@ const ApproveButton = ({ application }: ApplicationButtonProps) => {
       {...{
         onSubmit,
         state,
+        setState,
         successMessage,
         errorMessage,
         doText,
@@ -116,7 +117,7 @@ const ApproveButton = ({ application }: ApplicationButtonProps) => {
 };
 
 const DeclineButton = ({ application }: ApplicationButtonProps) => {
-  const { decline, result, state } = useDecline(application.token);
+  const { decline, result, state, setState } = useDecline(application.token);
 
   const successMessage = `Declined application from ${application.loginName}.`;
   const errorMessage =
@@ -137,6 +138,7 @@ const DeclineButton = ({ application }: ApplicationButtonProps) => {
         color: "warning",
         onSubmit,
         state,
+        setState,
         successMessage,
         errorMessage,
         doText,

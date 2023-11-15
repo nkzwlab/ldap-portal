@@ -8,6 +8,7 @@ interface ApiActionButtonProps {
   color?: Parameters<typeof Button>[0]["color"];
   onSubmit: SubmitHandler<{}>;
   state: ApiState;
+  setState: (newState: ApiState) => void;
   successMessage: string;
   errorMessage: string;
   doText: string;
@@ -18,6 +19,7 @@ export function ApiActionButton({
   color,
   onSubmit,
   state,
+  setState,
   successMessage,
   errorMessage,
   doText,
@@ -44,10 +46,18 @@ export function ApiActionButton({
           {buttonText}
         </Button>
       </form>
-      <Alert open={successOpen} handleClose={() => {}} severity="success">
+      <Alert
+        open={successOpen}
+        handleClose={() => setState("end")}
+        severity="success"
+      >
         {successMessage}
       </Alert>
-      <Alert open={errorOpen} handleClose={() => {}} severity="error">
+      <Alert
+        open={errorOpen}
+        handleClose={() => setState("start")}
+        severity="error"
+      >
         {errorMessage}
       </Alert>
     </>
