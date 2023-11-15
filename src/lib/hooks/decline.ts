@@ -29,13 +29,17 @@ export const useDecline = (token: string): Decline => {
     const resp = await axios.delete(path);
 
     const result = resp.data as DeclineResult;
-    setResult(result);
 
     if (result?.success) {
       setState("success");
     } else if (result?.error) {
       setState("error");
+    } else {
+      setState("error");
+      result.error = "Unknown error";
     }
+
+    setResult(result);
   };
 
   return { decline, result, state, setState };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ApiState } from "../types";
 
 const API_PATH_APPROVE = "/api/register/approval";
@@ -25,16 +25,20 @@ export const useApproval = (token: string): Approval => {
 
   const approve = async () => {
     setState("loading");
-    const resp = await axios.post(path);
+    const resp = await axios.post(path, null, { validateStatus: () => true });
 
     const result = resp.data as ApprovalResult;
-    setResult(result);
 
     if (result?.success) {
       setState("success");
     } else if (result?.error) {
       setState("error");
+    } else {
+      setState("error");
+      result.error = "Unknown error";
     }
+
+    setResult(result);
   };
 
   return { approve, result, state, setState };
