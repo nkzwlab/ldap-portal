@@ -63,8 +63,8 @@ services:
     restart: on-failure:3
     hostname: ldap.jn.sfc.keio.ac.jp
     ports:
-      - 127.0.0.1:636:636
-      - 127.0.0.1:389:389
+      - 127.0.0.1:8636:636
+      - 127.0.0.1:8389:389
     environment:
       LDAP_ORGANISATION: "Jn lab"
       LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
