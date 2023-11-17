@@ -11,7 +11,7 @@ const url = env.slacWebhookUrl;
 
 const webhook = new IncomingWebhook(url);
 
-const notifyApplication = async (
+export const notifyApplication = async (
   application: Application
 ): Promise<IncomingWebhookResult> => {
   const approveAction: Action = {

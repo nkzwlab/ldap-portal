@@ -1,10 +1,7 @@
 import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
-import {
-  statusBadRequest,
-  statusOk,
-  statusUnauthorized,
-} from "@/lib/http/status";
+import { statusBadRequest, statusOk } from "@/lib/http/status";
+import { notifyApplication } from "@/lib/slack/post";
 import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -38,6 +35,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const repository = await getRepository();
   await repository.addEntry(token, applicationWithoutUndefined);
+
+  console.log("POST /api/register: Notifying to Slack...");
+  const result = await notifyApplication(application);
+  console.log("POST /api/register: Notification result:", result);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };
