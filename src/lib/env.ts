@@ -54,6 +54,14 @@ class Config {
   get redisPassword(): string {
     return this.getEnv("REDIS_PASSWORD");
   }
+
+  get slackSigningSecret(): string {
+    return this.getEnv("SLACK_SIGNING_SECRET");
+  }
+  get slackBotToken(): string {
+    return this.getEnv("SLACK_BOT_TOKEN");
+  }
+
   get nodeEnv(): string {
     const nodeEnv = this.getEnv("NODE_ENV");
     return nodeEnv;
