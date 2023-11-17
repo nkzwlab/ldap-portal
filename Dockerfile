@@ -1,4 +1,4 @@
-FROM node:16-buster AS dev
+FROM node:18-buster AS dev
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -qq -y slapd ldap-utils python make
 
@@ -9,7 +9,7 @@ RUN yarn install
 
 CMD yarn run dev
 
-FROM node:16-alpine3.11
+FROM node:18-alpine3.11
 
 COPY . /src
 WORKDIR /src
