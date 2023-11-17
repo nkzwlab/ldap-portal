@@ -16,14 +16,19 @@ const verificationFailedResponse = new NextResponse(null, {
   status: statusNotFound,
 });
 
-interface Body {
-  type: "block_actions" | "url_verification" | undefined;
-  response_url?: string;
-  ssl_check?: boolean;
-  actions?: {
-    value?: string;
-  };
-}
+type Body =
+  | {
+      type: "block_actions" | undefined;
+      response_url?: string;
+      ssl_check?: boolean;
+      actions?: {
+        value?: string;
+      };
+    }
+  | {
+      type: "url_verification";
+      challenge: string;
+    };
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.clone().text();
@@ -53,11 +58,11 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     return verificationFailedResponse;
   }
 
-  if (data.type === "is_verification") {
-    return new NextResponse();
-  }
-
   const data = Object.fromEntries(formData.entries()) as any as Body;
+
+  if (data.type === "url_verification") {
+    return NextResponse.json({ challenge: data.challenge });
+  }
 
   if (data.type !== "block_actions") {
     console.error("POST /slack/events: Unknown event type:", data.type);
