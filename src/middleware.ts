@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import {
-  COOKIE_NAME_TOKEN,
-  HEADER_USERID,
-  Payload,
-  verifyToken,
-} from "./lib/auth";
+import { Payload, verifyToken } from "./lib/auth/auth";
+import { COOKIE_NAME_TOKEN, HEADER_USERID } from "./lib/auth/consts";
 
 const unauthenticatedPaths = [
   "/_next/",

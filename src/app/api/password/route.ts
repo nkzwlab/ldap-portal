@@ -2,7 +2,7 @@ import { statusBadRequest, statusUnauthorized } from "@/lib/http/status";
 import { NextRequest, NextResponse } from "next/server";
 
 import * as ldap from "@/lib/ldap";
-import { HEADER_USERID } from "@/lib/auth";
+import { HEADER_USERID } from "@/lib/auth/consts";
 
 export type ApiPasswordPutParams = {
   password: string;

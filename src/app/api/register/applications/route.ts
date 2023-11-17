@@ -1,4 +1,4 @@
-import { HEADER_USERID } from "@/lib/auth";
+import { HEADER_USERID } from "@/lib/auth/consts";
 import { getRepository } from "@/lib/database/application";
 import { env } from "@/lib/env";
 import { statusUnauthorized } from "@/lib/http/status";

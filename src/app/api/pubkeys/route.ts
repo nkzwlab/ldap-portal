@@ -1,4 +1,4 @@
-import { HEADER_USERID } from "@/lib/auth";
+import { HEADER_USERID } from "@/lib/auth/consts";
 import { statusBadRequest, statusUnauthorized } from "@/lib/http/status";
 import * as ldap from "@/lib/ldap";
 import { NextRequest, NextResponse } from "next/server";
