@@ -32,7 +32,7 @@ type Body =
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.clone().text();
-  const data = await req.json();
+  const formData = await req.formData();
   const requestHeaders = headers();
 
   const { slackSigningSecret: signingSecret } = env;
@@ -57,6 +57,8 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     console.error("POST /slack/events: signature verification failed:", err);
     return verificationFailedResponse;
   }
+
+  const data = Object.fromEntries(formData.entries());
 
   if (data.type === "url_verification") {
     return NextResponse.json({ challenge: data.challenge });
