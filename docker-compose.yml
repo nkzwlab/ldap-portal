@@ -60,7 +60,6 @@ services:
     profiles:
       - ldap
     image: osixia/openldap:1.5.0
-    platform: linux/arm64
     container_name: slapd
     restart: on-failure:3
     hostname: ldap.jn.sfc.keio.ac.jp
@@ -96,7 +95,6 @@ services:
     build:
       dockerfile: ./lam.dockerfile
       context: .
-    platform: linux/amd64
     container_name: lam
     restart: on-failure:3
     environment:
