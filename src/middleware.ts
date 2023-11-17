@@ -9,7 +9,7 @@ const unauthenticatedPaths = [
   "/favicon.ico",
   "/api/auth",
   "/api/register",
-  "/api/register/approval",
+  "/api/register/approval/",
   "/login",
   "/register",
   "/slack/events",
