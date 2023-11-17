@@ -1,16 +1,13 @@
 import * as jose from "jose";
 
-import { env } from "./env";
+import { env } from "../env";
+import { jwtSignAlgorithm } from "./consts";
 
-const jwtSignAlgorithm = "HS256";
 const secret = new TextEncoder().encode(env.secret);
 
 export type Payload = {
   userID: string;
 };
-
-export const COOKIE_NAME_TOKEN = "token";
-export const HEADER_USERID = "X-User-Id";
 
 export const verifyToken = async (jwtString: string): Promise<Payload> => {
   const { payload } = await jose.jwtVerify(jwtString, secret);

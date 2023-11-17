@@ -1,4 +1,5 @@
-import { COOKIE_NAME_TOKEN, signToken } from "@/lib/auth";
+import { signToken } from "@/lib/auth/auth";
+import { COOKIE_NAME_TOKEN, COOKIE_NAME_USERID } from "@/lib/auth/consts";
 import { setCookie } from "@/lib/cookie";
 import {
   statusInternalServerError,
@@ -22,6 +23,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
       const token = await signToken(loginName);
       const res = NextResponse.json({ success: true });
       setCookie(res, COOKIE_NAME_TOKEN, token);
+      setCookie(res, COOKIE_NAME_USERID, loginName, { httpOnly: false });
       return res;
     } else {
       const err = new Error("invalid userID or password");

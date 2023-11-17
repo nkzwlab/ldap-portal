@@ -5,19 +5,24 @@ import { env } from "./env";
 
 export const HEADER_SET_COOKIE = "Set-Cookie";
 
+export type SetCookieOptions = {
+  httpOnly?: boolean;
+};
+
 export const setCookie = (
   res: NextResponse | NextApiResponse,
   name: string,
-  value: string
+  value: string,
+  { httpOnly = true }: SetCookieOptions = {}
 ): void => {
   const serialized = serialize(name, value, {
-    httpOnly: true,
+    httpOnly,
     secure: env.isProduction,
     path: "/",
   });
 
   if (res instanceof NextResponse) {
-    res.headers.set(HEADER_SET_COOKIE, serialized);
+    res.headers.append(HEADER_SET_COOKIE, serialized);
   } else {
     res.setHeader(name, serialized);
   }
