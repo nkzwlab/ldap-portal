@@ -58,7 +58,12 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     return verificationFailedResponse;
   }
 
-  const data = Object.fromEntries(formData.entries());
+  const payload = formData.get("payload");
+  if (payload === null) {
+    return verificationFailedResponse;
+  }
+
+  const data = JSON.parse(payload);
 
   if (data.type === "url_verification") {
     return NextResponse.json({ challenge: data.challenge });
