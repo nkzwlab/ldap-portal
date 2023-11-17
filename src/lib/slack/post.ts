@@ -5,7 +5,7 @@ import {
 } from "@slack/webhook";
 import { env } from "../env";
 import { Application } from "../database/application";
-import { Action } from "@/app/slack/events/types";
+import { Action } from "@/app/slack/interactive/types";
 
 const url = env.slacWebhookUrl;
 
