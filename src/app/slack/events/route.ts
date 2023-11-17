@@ -17,7 +17,7 @@ const verificationFailedResponse = new NextResponse(null, {
 });
 
 interface Body {
-  type: "block_actions" | "is_verification" | undefined;
+  type: "block_actions" | "url_verification" | undefined;
   response_url?: string;
   ssl_check?: boolean;
   actions?: {
