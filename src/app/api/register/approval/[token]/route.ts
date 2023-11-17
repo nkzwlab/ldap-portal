@@ -6,6 +6,7 @@ import {
   statusOk,
 } from "@/lib/http/status";
 import { AddUserParams, addUser } from "@/lib/ldap";
+import { approveApplication } from "@/lib/registration";
 import { EntryAlreadyExistsError } from "ldapjs";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,22 +26,9 @@ export const POST = async (
     );
   }
 
-  const repository = await getRepository();
-  const application = await repository.getApplicationByToken(token);
-
-  if (application === null) {
-    return NextResponse.json(
-      { error: "application not found with that token" },
-      { status: statusNotFound }
-    );
-  }
-
-  const params: AddUserParams = applicationToParams(application);
-
-  let success = false;
-
+  let success: boolean = false;
   try {
-    success = await addUser(params);
+    success = await approveApplication(token);
   } catch (err) {
     if (err instanceof EntryAlreadyExistsError) {
       return NextResponse.json({
@@ -50,10 +38,6 @@ export const POST = async (
     }
 
     throw err;
-  }
-
-  if (success) {
-    await repository.deleteEntry(token);
   }
 
   const status = success ? statusOk : statusInternalServerError;
