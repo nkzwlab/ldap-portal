@@ -17,7 +17,7 @@ const verificationFailedResponse = new NextResponse(null, {
 });
 
 interface Body {
-  type: "block_actions" | undefined;
+  type: "block_actions" | "is_verification" | undefined;
   response_url?: string;
   ssl_check?: boolean;
   actions?: {
@@ -51,6 +51,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   } catch (err) {
     console.error("POST /slack/events: signature verification failed:", err);
     return verificationFailedResponse;
+  }
+
+  if (data.type === "is_verification") {
+    return new NextResponse();
   }
 
   const data = Object.fromEntries(formData.entries()) as any as Body;
