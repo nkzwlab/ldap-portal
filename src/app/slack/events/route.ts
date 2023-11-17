@@ -10,6 +10,7 @@ import { verifyRequestSignature } from "@slack/events-api";
 import axios from "axios";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { Action } from "./types";
 
 const verificationFailedResponse = new NextResponse(null, {
   status: statusNotFound,
@@ -23,11 +24,6 @@ interface Body {
     value?: string;
   };
 }
-
-type Action = {
-  type: "approve" | "decline";
-  token: string;
-};
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.clone().text();

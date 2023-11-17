@@ -61,6 +61,9 @@ class Config {
   get slackBotToken(): string {
     return this.getEnv("SLACK_BOT_TOKEN");
   }
+  get slacWebhookUrl(): string {
+    return this.getEnv("SLACK_WEBHOOK_URL");
+  }
 
   get nodeEnv(): string {
     const nodeEnv = this.getEnv("NODE_ENV");
