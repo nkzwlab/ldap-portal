@@ -26,6 +26,8 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    networks:
+      - redis
 
   https-portal:
     profiles:
