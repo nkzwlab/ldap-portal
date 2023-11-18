@@ -307,8 +307,15 @@ export async function addUser(
 
     if (options?.replaceEmpty) {
       try {
-        const entry = searchEntries(client, SEARCH_BASE_DN, "");
-        await deleteEntry(client, dn);
+        const entry = await searchEntries(
+          client,
+          SEARCH_BASE_DN,
+          `(&(uid=${params.loginName})(!(uidNumber=*)))` // Search for entries thaat with the given login name and without uiddNumber
+        );
+        if (entry.length >= 0) {
+          console.log("addUser: Deleting pre-existing empty entry:", entry);
+          await deleteEntry(client, dn);
+        }
       } catch (err) {
         console.error("addUser: Failed to delete entry:", err);
       }
