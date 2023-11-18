@@ -133,7 +133,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
     axios.post(data.response_url, {
       replace_original: true,
-      text: `Approved the application from ${application.loginName} successfully.`,
+      text: message,
     });
   };
 
