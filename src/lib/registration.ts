@@ -12,7 +12,7 @@ export const approveApplication = async (token: string): Promise<boolean> => {
 
   const params: AddUserParams = applicationToParams(application);
 
-  const success = await addUser(params);
+  const success = await addUser(params, { replaceEmpty: true });
 
   if (success) {
     await repository.deleteEntry(application.token);

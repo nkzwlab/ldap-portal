@@ -256,6 +256,10 @@ export type AddUserParams = {
   extraParams?: object;
 };
 
+export type AddUserOptions = {
+  replaceEmpty?: boolean;
+};
+
 type DefaultUserParamsType = NonNullableRecord<
   OptionalPropertiesOf<AddUserParams>
 >;
@@ -290,13 +294,26 @@ export const setDefaultUserParams = async (
   return out;
 };
 
-export async function addUser(params: AddUserParams): Promise<boolean> {
+export async function addUser(
+  params: AddUserParams,
+  options?: AddUserOptions
+): Promise<boolean> {
   const client = createClient(ldapOption);
   try {
     await bindAsAdmin(client);
 
     params = await setDefaultUserParams(client, params);
     const dn = userDN(params.loginName);
+
+    if (options?.replaceEmpty) {
+      try {
+        const entry = searchEntries(client, SEARCH_BASE_DN, "");
+        await deleteEntry(client, dn);
+      } catch (err) {
+        console.error("addUser: Failed to delete entry:", err);
+      }
+    }
+
     const entry = {
       uidNumber: params.uidNumber,
       gidNumber: params.gidNumber,
@@ -374,6 +391,18 @@ async function addEntry(
   console.log({ entry });
   return new Promise((resolve, reject) => {
     client.add(dn, entry, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
+async function deleteEntry(client: LdapClient, dn: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    client.del(dn, (err) => {
       if (err) {
         reject(err);
       } else {
