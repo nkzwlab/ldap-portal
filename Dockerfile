@@ -13,7 +13,7 @@ FROM node:18-alpine3.18
 
 COPY . /src
 WORKDIR /src
-RUN apk add --no-cache openldap python make &&\
+RUN apk add --no-cache openldap python3 make &&\
     yarn install &&\
     yarn run build
 CMD ["yarn", "run", "start"]
