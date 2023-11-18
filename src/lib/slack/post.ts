@@ -81,3 +81,35 @@ export const notifyApplication = async (
 
   return result;
 };
+
+export const notifyApproval = async (
+  application: Application
+): Promise<IncomingWebhookResult> => {
+  const options: IncomingWebhookSendArguments = {
+    blocks: [
+      {
+        // Header
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "Application was approwed",
+          emoji: true,
+        },
+      },
+      {
+        // Application information
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `New user **${application.loginName} was created.`,
+          },
+        ],
+      },
+    ],
+  };
+
+  const result = await webhook.send(options);
+
+  return result;
+};

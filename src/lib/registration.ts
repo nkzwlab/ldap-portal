@@ -1,6 +1,7 @@
 import { EntryAlreadyExistsError } from "ldapjs";
 import { Application, getRepository } from "./database/application";
 import { AddUserParams, addUser } from "./ldap";
+import { notifyApproval } from "./slack/post";
 
 export const approveApplication = async (token: string): Promise<boolean> => {
   const repository = await getRepository();
@@ -16,6 +17,10 @@ export const approveApplication = async (token: string): Promise<boolean> => {
 
   if (success) {
     await repository.deleteEntry(application.token);
+    await notifyApproval(application);
+    console.log(
+      `approveApplication: Approved application from ${application.loginName} and notified to slack.`
+    );
   }
 
   return success;
