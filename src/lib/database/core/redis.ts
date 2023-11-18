@@ -10,6 +10,7 @@ type RedisJSONObject = RedisJSON & object;
 export type RedisConfiguration = {
   url: string;
   itemName: string;
+  password: string;
 };
 
 export class RedisRepository<T extends {}> implements AbstractRepository<T> {
@@ -24,9 +25,10 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
   static async withConfiguration<
     U extends RedisJSONObject & object,
     R extends RedisRepository<U> = RedisRepository<U>
-  >({ url, itemName: name }: RedisConfiguration): Promise<R> {
+  >({ url, itemName: name, password }: RedisConfiguration): Promise<R> {
     const client = createClient({
       url,
+      password,
     });
     await client.connect();
 

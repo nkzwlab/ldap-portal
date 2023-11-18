@@ -48,6 +48,7 @@ class Config {
   get redisUrl(): string {
     return this.getEnv("REDIS_URL");
   }
+
   get redisUser(): string {
     return this.getEnv("REDIS_USER");
   }

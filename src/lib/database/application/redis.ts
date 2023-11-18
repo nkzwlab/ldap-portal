@@ -29,14 +29,15 @@ export class RedisApplicationRepository
   static async withDefaultConfiguration(): Promise<RedisApplicationRepository> {
     const url = env.redisUrl;
     const name = "application";
-    // const username = env.redisUser;
-    // const password = env.redisPassword;
+    const password = env.redisPassword;
+
     return RedisApplicationRepository.withConfiguration<
       Application,
       RedisApplicationRepository
     >({
       url,
       itemName: name,
+      password,
     });
   }
 }
