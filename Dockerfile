@@ -11,9 +11,15 @@ CMD yarn run dev
 
 FROM node:18-alpine3.18
 
-COPY . /src
 WORKDIR /src
-RUN apk add --no-cache openldap python3 make &&\
-    yarn install &&\
-    yarn run build
+
+RUN apk add --no-cache openldap python3 make
+
+COPY ./package.json ./yarn.lock /src
+
+RUN yarn install
+
+COPY ./next-env.d.ts ./next.config.js ./tsconfig.json ./vitest.config.ts /src /public
+RUN yarn run build
+
 CMD ["yarn", "run", "start"]
