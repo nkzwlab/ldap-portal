@@ -19,7 +19,8 @@ COPY ./package.json ./yarn.lock /src
 
 RUN yarn install
 
-COPY ./next-env.d.ts ./next.config.js ./tsconfig.json ./vitest.config.ts /src /public /src/
-RUN yarn run build
+COPY ./.env ./next-env.d.ts ./next.config.js ./tsconfig.json ./vitest.config.ts /src/
+COPY  /public /src/public
+COPY  /src /src/src
 
 CMD ["yarn", "run", "start"]
