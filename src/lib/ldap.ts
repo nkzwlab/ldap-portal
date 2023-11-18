@@ -311,7 +311,8 @@ export async function addUser(
         const entry = await searchEntries(
           client,
           SEARCH_BASE_DN,
-          `(&(uid=${params.loginName})(!(uidNumber=*)))` // Search for entries thaat with the given login name and without uiddNumber
+          `(&(uid=${params.loginName})(!(uidNumber=*)))`, // Search for entries thaat with the given login name and without uiddNumber
+          { scope: "sub" }
         );
         if (entry.length > 0) {
           console.log("addUser: Deleting pre-existing empty entry:", entry);
