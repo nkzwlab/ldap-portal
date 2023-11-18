@@ -63,7 +63,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     return verificationFailedResponse;
   }
 
-  const data = JSON.parse(payload.toString());
+  const data: Body = JSON.parse(payload.toString());
 
   if (data.type === "url_verification") {
     return NextResponse.json({ challenge: data.challenge });
