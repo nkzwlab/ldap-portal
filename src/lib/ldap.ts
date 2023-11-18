@@ -316,17 +316,14 @@ export async function addUser(
         );
         if (entry.length > 0) {
           console.log("addUser: Deleting pre-existing empty entry:", entry);
+          const { objectName } = entry[0];
+          const dn =
+            typeof objectName === "object" ? objectName[0] : objectName;
           await deleteEntry(client, dn);
         }
       } catch (err) {
-        if (err instanceof NoSuchObjectError) {
-          console.log(
-            `addUser: User ${params.loginName} does not pre-exit. Continuing to register`
-          );
-        } else {
-          console.error("addUser: Failed to delete entry:", err);
-          return false;
-        }
+        console.error("addUser: Failed to delete entry:", err);
+        return false;
       }
     }
 
