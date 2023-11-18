@@ -19,6 +19,7 @@ import { ApiLoginParams } from "../api/auth/route";
 import { useRouter } from "next/navigation";
 import { statusUnauthorized } from "@/lib/http/status";
 import Alert from "@/lib/components/Alert";
+import Link from "next/link";
 
 const API_PATH_LOGIN = "/api/auth";
 
@@ -131,6 +132,12 @@ export default function Login() {
             Submit
           </Button>
         </Stack>
+        <Typography variant="body2" color="GrayText" align="center">
+          Don&apos;t have account yet?{" "}
+          <Link href="/register" style={{ textDecoration: "underline" }}>
+            Create an account
+          </Link>
+        </Typography>
         <Alert
           open={errorOpen}
           handleClose={() => setErrorOpen(false)}
