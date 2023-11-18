@@ -9,7 +9,7 @@ RUN yarn install
 
 CMD yarn run dev
 
-FROM node:18-alpine3.11
+FROM node:18-alpine3.18
 
 COPY . /src
 WORKDIR /src
