@@ -6,6 +6,7 @@ import ldap, {
   SearchEntryObject,
   SearchOptions,
   InvalidCredentialsError,
+  NoSuchObjectError,
 } from "ldapjs";
 
 import { env } from "./env";
@@ -312,12 +313,19 @@ export async function addUser(
           SEARCH_BASE_DN,
           `(&(uid=${params.loginName})(!(uidNumber=*)))` // Search for entries thaat with the given login name and without uiddNumber
         );
-        if (entry.length >= 0) {
+        if (entry.length > 0) {
           console.log("addUser: Deleting pre-existing empty entry:", entry);
           await deleteEntry(client, dn);
         }
       } catch (err) {
-        console.error("addUser: Failed to delete entry:", err);
+        if (err instanceof NoSuchObjectError) {
+          console.log(
+            `addUser: User ${params.loginName} does not pre-exit. Continuing to register`
+          );
+        } else {
+          console.error("addUser: Failed to delete entry:", err);
+          return false;
+        }
       }
     }
 
