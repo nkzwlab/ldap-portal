@@ -41,9 +41,9 @@ services:
     networks:
       - prod
     volumes:
-      - ./https-portal/certs:/var/lib/https-portal
+      - ./data/https-portal/certs:/var/lib/https-portal
     environment:
-      STAGE: local
+      STAGE: production
       DOMAINS: >-
         ${DEPLOY_DOMAIN} -> http://server:3000
     env_file: .env
