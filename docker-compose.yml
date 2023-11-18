@@ -27,6 +27,7 @@ services:
     restart: unless-stopped
     env_file: .env
     networks:
+      - prod
       - redis
 
   https-portal:
@@ -37,8 +38,8 @@ services:
       - "80:80"
       - "443:443"
     restart: unless-stopped
-    links:
-      - server
+    networks:
+      - prod
     volumes:
       - ./https-portal/certs:/var/lib/https-portal
     environment:
@@ -127,5 +128,6 @@ services:
       - "8081:80"
 
 networks:
+  prod: {}
   ldap: {}
   redis: {}
