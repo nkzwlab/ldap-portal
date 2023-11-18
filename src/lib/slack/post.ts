@@ -102,7 +102,7 @@ export const notifyApproval = async (
         fields: [
           {
             type: "mrkdwn",
-            text: `New user **${application.loginName} was created.`,
+            text: `New user **${application.loginName}** was created.`,
           },
         ],
       },
