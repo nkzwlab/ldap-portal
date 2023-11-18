@@ -1,6 +1,7 @@
 version: "3"
 
 services:
+  ## Development server ##
   dev-server:
     profiles:
       - dev
@@ -16,6 +17,8 @@ services:
     networks:
       - ldap
       - redis
+
+  ## Development servers ##
 
   server:
     profiles:
@@ -37,6 +40,7 @@ services:
     volumes:
       - ./https-portal/certs:/var/lib/https-portal
     environment:
+      STAGE: local
       DOMAINS: >-
         ${DEPLOY_DOMAIN} -> http://server:3000
     env_file: .env
@@ -54,7 +58,7 @@ services:
     networks:
       - redis
 
-  ## LDAP ##
+  ## 開発用の LDAP ##
 
   slapd: # OpenLDAPサーバ
     profiles:
@@ -123,6 +127,3 @@ services:
 networks:
   ldap: {}
   redis: {}
-
-volumes:
-  redis-data: {}
