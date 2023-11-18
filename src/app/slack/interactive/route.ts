@@ -79,8 +79,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const approveInBackground = async () => {
     console.log("POST /slack/events: Started background task.");
+    console.log({ data });
     if (typeof data?.actions?.value === "undefined") {
-      return verificationFailedResponse;
+      console.error("POST /slack/events: :value is empty");
+      return;
     }
     if (typeof data?.response_url === "undefined") {
       console.error("POST /slack/events: response_url was not given:");
