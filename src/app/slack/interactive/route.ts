@@ -23,7 +23,7 @@ type Body =
       ssl_check?: boolean;
       actions?: {
         value?: string;
-      };
+      }[];
     }
   | {
       type: "url_verification";
@@ -79,17 +79,23 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const approveInBackground = async () => {
     console.log("POST /slack/events: Started background task.");
-    console.log({ data });
-    if (typeof data?.actions?.value === "undefined") {
-      console.error("POST /slack/events: :value is empty");
-      return;
-    }
-    if (typeof data?.response_url === "undefined") {
-      console.error("POST /slack/events: response_url was not given:");
+    if (typeof data?.actions === "undefined" || data.actions.length <= 0) {
+      console.error("POST /slack/events: :value is empty:", data?.actions);
       return;
     }
 
-    const { token, type } = parseAction(data.actions.value);
+    const action = data.actions[0];
+
+    if (typeof action.value === "undefined") {
+      console.error("POST /slack/events: :value is empty:", action);
+      return;
+    }
+    if (typeof data?.response_url === "undefined") {
+      console.error("POST /slack/events: response_url was not given:", data);
+      return;
+    }
+
+    const { token, type } = parseAction(action.value);
 
     const repository = await getRepository();
     const application = await repository.getApplicationByToken(token);
