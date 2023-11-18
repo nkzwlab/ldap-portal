@@ -12,7 +12,7 @@ const unauthenticatedPaths = [
   "/api/register/approval/",
   "/login",
   "/register",
-  "/slack/events",
+  "/slack/interactive",
 ];
 
 const pathMatches = (paths: string[], targetPath: string): boolean => {
