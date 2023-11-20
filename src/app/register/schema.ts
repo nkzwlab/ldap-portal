@@ -1,4 +1,4 @@
-import { passwordSchema } from "@/lib/schemas";
+import { confirmPassword, passwordSchema } from "@/lib/schemas";
 import * as z from "zod";
 export const schema = z
   .object({
@@ -9,14 +9,11 @@ export const schema = z
     password: passwordSchema,
     passwordConfirmation: passwordSchema,
   })
-  .superRefine(({ password, passwordConfirmation }, ctx) => {
-    if (password !== passwordConfirmation) {
-      ctx.addIssue({
-        path: ["passwordConfirmation"],
-        code: "custom",
-        message: "Password and password confirmation do not match",
-      });
-    }
-  });
+  .superRefine(({ password, passwordConfirmation }, ctx) =>
+    confirmPassword(
+      { newPassword: password, newPasswordConfirmation: passwordConfirmation },
+      ctx
+    )
+  );
 
 export type Schema = z.infer<typeof schema>;
