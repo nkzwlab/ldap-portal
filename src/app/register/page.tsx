@@ -37,9 +37,12 @@ const Register: NextPage = () => {
     formState: { isSubmitting, isSubmitted },
   } = useForm<Schema>({ resolver: zodResolver(schema) });
 
-  const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
+  const onSubmit: SubmitHandler<Schema> = async ({
+    loginName,
+    newPassword,
+  }) => {
     console.log("on submit");
-    const params: ApiRegisterParams = { loginName, password };
+    const params: ApiRegisterParams = { loginName, password: newPassword };
     let resp: AxiosResponse | undefined;
 
     try {
@@ -111,12 +114,12 @@ const Register: NextPage = () => {
 
           {/* Text field for password. Controlled by React-Hook-Form */}
           <Controller
-            name="password"
+            name="newPassword"
             control={control}
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                id="password"
+                id="newPassword"
                 type="password"
                 label="Password"
                 required
@@ -130,12 +133,12 @@ const Register: NextPage = () => {
 
           {/* Text field for password confirmation. Controlled by React-Hook-Form */}
           <Controller
-            name="passwordConfirmation"
+            name="newPasswordConfirmation"
             control={control}
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                id="passwordConfirmation"
+                id="newPasswordConfirmation"
                 type="password"
                 label="Password confirmation"
                 required
