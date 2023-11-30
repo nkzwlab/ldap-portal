@@ -2,6 +2,7 @@ version: "3"
 
 services:
   ## Development server ##
+
   dev-server:
     profiles:
       - dev
@@ -18,7 +19,7 @@ services:
       - ldap
       - redis
 
-  ## Development servers ##
+  ## Production servers ##
 
   server:
     profiles:
@@ -43,12 +44,13 @@ services:
     volumes:
       - ./data/https-portal/certs:/var/lib/https-portal
     environment:
-      STAGE: production
+      # For production, change here to "production" once it works
+      STAGE: staging
       DOMAINS: >-
         ${DEPLOY_DOMAIN} -> http://server:3000
     env_file: .env
 
-  # Redis にアカウント作成リクエストを保存する
+  # Save account registration information in Redis
   redis:
     profiles:
       - dev
@@ -63,7 +65,7 @@ services:
       - redis
     env_file: .env
 
-  ## 開発用の LDAP ##
+  ## LDAP servers for local development ##
 
   slapd: # OpenLDAPサーバ
     profiles:
@@ -89,7 +91,6 @@ services:
       - ./data/ldap_db:/var/lib/ldap
       - ./data/ldap_config:/etc/ldap/slapd.d
       - ./data/https-portal/ldap.jn.sfc.keio.ac.jp/production:/container/service/slapd/assets/certs
-        #- ./data/https-portal/ldap.jn.sfc.keio.ac.jp/staging:/container/service/slapd/assets/certs
     logging:
       driver: "json-file"
       options:
@@ -98,7 +99,8 @@ services:
     networks:
       - ldap
 
-  lam: # Ldap Account Manager (LDAP管理ツール）
+  # Ldap Account Manager (LAM) server, for manage local LDAP server
+  lam:
     profiles:
       - ldap
     build:
