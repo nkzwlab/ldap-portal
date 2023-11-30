@@ -58,7 +58,7 @@ export default function NavBar() {
             aria-label="home"
             sx={{ mr: 2 }}
           >
-            <Link href="/">
+            <Link href="/" prefetch={false}>
               <HomeIcon />
             </Link>
           </IconButton>
