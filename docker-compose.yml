@@ -73,14 +73,11 @@ services:
     image: osixia/openldap:1.5.0
     container_name: slapd
     restart: on-failure:3
-    hostname: ldap.jn.sfc.keio.ac.jp
+    hostname: ${LDAP_DOMAIN}
     ports:
       - 127.0.0.1:8636:636
       - 127.0.0.1:8389:389
     environment:
-      LDAP_ORGANISATION: "Jn lab"
-      LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
-      LDAP_BASE_DN: "dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
       LDAP_TLS: "false"
       LDAP_TLS_ENFORCE: "false"
       LDAP_READONLY_USER: "true"
@@ -90,7 +87,6 @@ services:
     volumes:
       - ./data/ldap_db:/var/lib/ldap
       - ./data/ldap_config:/etc/ldap/slapd.d
-      - ./data/https-portal/ldap.jn.sfc.keio.ac.jp/production:/container/service/slapd/assets/certs
     logging:
       driver: "json-file"
       options:
@@ -109,14 +105,8 @@ services:
     container_name: lam
     restart: on-failure:3
     environment:
-      LDAP_DOMAIN: "jn.sfc.keio.ac.jp"
-      LDAP_BASE_DN: "dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
-      LDAP_USERS_DN: "ou=people,dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
-      LDAP_GROUPS_DN: "ou=groups,dc=jn,dc=sfc,dc=keio,dc=ac,dc=jp"
       LDAP_SERVER: "ldap://slapd"
-      LDAP_ORGANISATION: "Jn lab"
       LAM_LANG: "ja_JP"
-      # LAM_PASSWORD: "lam"
     env_file:
       - .env
     depends_on:
