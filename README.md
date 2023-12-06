@@ -1,6 +1,6 @@
 # ldap-portal
 A simple and lightweight LDAP portal application.
-You can change passwords, login shells, and add or delete public keys.
+You can change passwords, login shells, and add or remove public keys.
 
 ![login page](docs/img/login.png)
 ![index page](docs/img/index.png)
@@ -9,7 +9,8 @@ You can change passwords, login shells, and add or delete public keys.
 
 ## How to deploy
 
-For running development server, please refer to the next section.
+This section describes how to deploy to the production environment.  
+To run development server, please refer to the next section.
 
 ### 1. Download (clone) the repository
 
@@ -92,6 +93,12 @@ NODE_ENV=development|test|production
 
 ```.ldap.env
 LDAP_ADMIN_PASSWORD=YourPassw0rd!
+LDAP_ORGANISATION=Example Company
+LDAP_DOMAIN=ldap.example.com
+LDAP_BASE_DN=dc=example,dc=com
+LDAP_USERS_DN=ou=people,dc=example,dc=com
+LDAP_GROUPS_DN=ou=groups,dc=example,dc=com
+
 LAM_PASSWORD=YourPassw0rd!
 ```
 
@@ -107,6 +114,6 @@ docker compose --profile dev --profile ldap up --build
 2. Log in with the password you configured through env var `LDAP_ADMIN_PASSWORD`
 3. Create first schema by following the prompt
 
-### 4. Start developing
+### 4. Start development!
 
 Edit each .tsx files then the page hot-reloads immediately.
