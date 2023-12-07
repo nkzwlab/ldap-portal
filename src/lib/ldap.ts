@@ -211,6 +211,26 @@ export async function isUserInGroup(
   }
 }
 
+export async function searchUser(userID: string): Promise<boolean> {
+  const client = createClient(ldapOption);
+  const filter = `uid=${userID}`;
+  const options: SearchOptions = {
+    scope: "sub",
+  };
+
+  try {
+    await bindAsAdmin(client);
+    const users = await searchEntries(client, SEARCH_BASE_DN, filter, options);
+    console.log({ users });
+
+    return users.length > 0;
+  } catch (err) {
+    throw err;
+  } finally {
+    await unbind(client);
+  }
+}
+
 export const fetchGreatestUidNumber = async (
   client: LdapClient
 ): Promise<number> => {
