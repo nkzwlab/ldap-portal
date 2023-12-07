@@ -1,7 +1,8 @@
 import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusOk } from "@/lib/http/status";
-import { notifyApplication } from "@/lib/slack/post";
+import { searchUser } from "@/lib/ldap";
+import { notifyApplication, notifyDuplication } from "@/lib/slack/post";
 import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,6 +20,15 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
       { error: "invalid loginName or email or password" },
       { status: statusBadRequest }
     );
+  }
+
+  const found = await searchUser(loginName);
+  if (found) {
+    console.warn(
+      `POST /api/register: User ${loginName} already exists. Discarding the application`
+    );
+    await notifyDuplication(loginName);
+    return NextResponse.json({ success: true }, { status: statusOk });
   }
 
   const token = generateToken();

@@ -113,3 +113,33 @@ export const notifyApproval = async (
 
   return result;
 };
+
+export const notifyDuplication = async (
+  loginName: string
+): Promise<IncomingWebhookResult> => {
+  const options: IncomingWebhookSendArguments = {
+    blocks: [
+      {
+        // Header
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "Duplicated application notice",
+          emoji: true,
+        },
+      },
+      {
+        // Application information
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `Registration form for user *${loginName}* was submitted, but the user already exists on LDAP.`,
+        },
+      },
+    ],
+  };
+
+  const result = await webhook.send(options);
+
+  return result;
+};
