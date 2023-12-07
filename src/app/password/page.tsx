@@ -147,7 +147,7 @@ export default function Login() {
             type="submit"
             variant="contained"
             fullWidth
-            disabled={!isValid || isSubmitting}
+            disabled={isSubmitting}
           >
             Submit
           </Button>
