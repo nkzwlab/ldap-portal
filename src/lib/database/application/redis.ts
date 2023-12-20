@@ -11,6 +11,8 @@ export const SCHEMA: RediSearchSchema = {
   loginName: {
     type: SchemaFieldTypes.TEXT,
     SORTABLE: true,
+    // Prevent Redis from tokenizing the text for efficient search
+    NOSTEM: true,
   },
   email: {
     type: SchemaFieldTypes.TEXT,
@@ -21,6 +23,7 @@ export const SCHEMA: RediSearchSchema = {
   token: {
     type: SchemaFieldTypes.TEXT,
     SORTABLE: true,
+    NOSTEM: true,
   },
 };
 
