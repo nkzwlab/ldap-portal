@@ -13,4 +13,14 @@ export class InMemmoryApplicationRepository
 
     return entry;
   }
+
+  async getApplicationByLoginName(
+    loginName: string
+  ): Promise<Application | null> {
+    const apps = Object.values(this.records);
+
+    return (
+      apps.find((application) => application.loginName === loginName) ?? null
+    );
+  }
 }

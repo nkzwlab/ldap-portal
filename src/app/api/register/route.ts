@@ -31,6 +31,21 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     return NextResponse.json({ success: true }, { status: statusOk });
   }
 
+  const repository = await getRepository();
+
+  const existingApplication = await repository.getApplicationByLoginName(
+    loginName
+  );
+  if (existingApplication !== null) {
+    console.error(
+      `POST /api/register: Duplicated application for ${loginName}`
+    );
+    return NextResponse.json(
+      { success: false, error: "You have been already submitted the form." },
+      { status: statusBadRequest }
+    );
+  }
+
   const token = generateToken();
   const ssha = await SSHA.withRandomSalt(password);
   const passwordHash = ssha.passwd;
@@ -43,7 +58,6 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   console.log({ application });
   const applicationWithoutUndefined = removeUndefinedProperty(application);
 
-  const repository = await getRepository();
   await repository.addEntry(token, applicationWithoutUndefined);
 
   console.log("POST /api/register: Notifying to Slack...");

@@ -2,6 +2,7 @@ import { AbstractRepository } from "../core";
 
 export interface ApplicationRepository extends AbstractRepository<Application> {
   getApplicationByToken(token: string): Promise<Application | null>;
+  getApplicationByLoginName(loginName: string): Promise<Application | null>;
 }
 
 export type Application = {
