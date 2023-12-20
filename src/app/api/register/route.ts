@@ -41,7 +41,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
       `POST /api/register: Duplicated application for ${loginName}`
     );
     return NextResponse.json(
-      { success: false, error: "You have been already submitted the form." },
+      { success: false, error: "You have already submitted the form." },
       { status: statusBadRequest }
     );
   }

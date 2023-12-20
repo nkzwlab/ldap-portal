@@ -9,21 +9,21 @@ import { RediSearchSchema, SchemaFieldTypes, SearchOptions } from "redis";
 
 export const SCHEMA: RediSearchSchema = {
   loginName: {
-    type: SchemaFieldTypes.TEXT,
+    // There are also the TEXT type.
+    // However, Redis tokenizes the input text for efficient human-readable text search.
+    // For strings just used as identifiers, we can use the type TAG.
+    type: SchemaFieldTypes.TAG,
     SORTABLE: true,
-    // Prevent Redis from tokenizing the text for efficient search
-    NOSTEM: true,
   },
   email: {
-    type: SchemaFieldTypes.TEXT,
+    type: SchemaFieldTypes.TAG,
   },
   passwordHash: {
-    type: SchemaFieldTypes.TEXT,
+    type: SchemaFieldTypes.TAG,
   },
   token: {
-    type: SchemaFieldTypes.TEXT,
+    type: SchemaFieldTypes.TAG,
     SORTABLE: true,
-    NOSTEM: true,
   },
 };
 
@@ -90,9 +90,14 @@ export class RedisApplicationRepository
       },
     };
 
+    // Redis interprets hyphens in search query as negation.
+    // So we need to escape them to saarch text containing hyphens.
+    // Also, single backslash does not work and we need two.
+    // i.e.) {kino-ma} => {kino\\-ma}
+    const escaped = loginName.replaceAll("-", `\\-`);
     const res = await this.client.ft.search(
       this.index,
-      `@loginName: ${loginName}`,
+      `@loginName:{${escaped}}`,
       options
     );
 
