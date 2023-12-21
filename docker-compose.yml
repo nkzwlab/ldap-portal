@@ -73,7 +73,7 @@ services:
     image: osixia/openldap:1.5.0
     container_name: slapd
     restart: on-failure:3
-    hostname: ${LDAP_DOMAIN}
+    hostname: ${LDAP_SERVER_FQDN}
     ports:
       - 127.0.0.1:8636:636
       - 127.0.0.1:8389:389
@@ -108,7 +108,7 @@ services:
       LDAP_SERVER: "ldap://slapd"
       LAM_LANG: "ja_JP"
     env_file:
-      - .env
+      - .ldap.env
     depends_on:
       - slapd
     logging:
