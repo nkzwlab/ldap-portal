@@ -22,8 +22,8 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
-  const found = await searchUser(loginName);
-  if (found) {
+  const existingUsers = await searchUser(loginName);
+  if (existingUsers.length > 0) {
     console.warn(
       `POST /api/register: User ${loginName} already exists. Discarding the application`
     );

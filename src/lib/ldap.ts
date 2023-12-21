@@ -211,19 +211,41 @@ export async function isUserInGroup(
   }
 }
 
-export async function searchUser(userID: string): Promise<boolean> {
+export async function searchUser(userID: string): Promise<SearchEntryObject[]> {
   const client = createClient(ldapOption);
-  const filter = `uid=${userID}`;
-  const options: SearchOptions = {
-    scope: "sub",
-  };
 
   try {
     await bindAsAdmin(client);
-    const users = await searchEntries(client, SEARCH_BASE_DN, filter, options);
-    console.log({ users });
+    const entry = await searchEntries(
+      client,
+      SEARCH_BASE_DN,
+      `(&(uid=${userID})(uidNumber=*))`, // Search for entries thaat with the given login name and has uidNumber
+      { scope: "sub" }
+    );
 
-    return users.length > 0;
+    return entry;
+  } catch (err) {
+    throw err;
+  } finally {
+    await unbind(client);
+  }
+}
+
+export async function searchEmptyUser(
+  userID: string
+): Promise<SearchEntryObject[]> {
+  const client = createClient(ldapOption);
+
+  try {
+    await bindAsAdmin(client);
+    const entry = await searchEntries(
+      client,
+      SEARCH_BASE_DN,
+      `(&(uid=${userID})(!(uidNumber=*)))`, // Search for entries thaat with the given login name and without uiddNumber
+      { scope: "sub" }
+    );
+
+    return entry;
   } catch (err) {
     throw err;
   } finally {
@@ -328,12 +350,7 @@ export async function addUser(
 
     if (options?.replaceEmpty) {
       try {
-        const entry = await searchEntries(
-          client,
-          SEARCH_BASE_DN,
-          `(&(uid=${params.loginName})(!(uidNumber=*)))`, // Search for entries thaat with the given login name and without uiddNumber
-          { scope: "sub" }
-        );
+        const entry = await searchEmptyUser(params.loginName);
         if (entry.length > 0) {
           console.log("addUser: Deleting pre-existing empty entry:", entry);
           const { objectName } = entry[0];
