@@ -24,6 +24,7 @@ import {
 import { Schema, schema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePubkeys, usePutPubkey } from "@/lib/hooks/pubkey";
+import { Add, Delete } from "@mui/icons-material";
 
 export default function Pubkey() {
   const [alertOpen, setAlertOpen] = useState(false);
@@ -85,14 +86,13 @@ export default function Pubkey() {
     setAlertOpen(false);
   };
 
-  const textFields = fields.map((_item, index, { length }) => (
+  const textFields = fields.map(({ id }, index) => (
     <PubkeyRow
-      key={index}
+      key={id}
       {...{
-        action: length - 1 === index ? "add" : "delete",
+        id,
         index,
         control,
-        append,
         remove,
       }}
     />
@@ -116,6 +116,15 @@ export default function Pubkey() {
         >
           {textFields}
 
+          <Button
+            type="button"
+            variant="contained"
+            color="secondary"
+            sx={{ display: "flex", paddingRight: "1.5em" }}
+            onClick={() => append({ value: "" })}
+          >
+            <Add /> Add
+          </Button>
           <Button
             type="submit"
             variant="contained"
@@ -145,52 +154,29 @@ export default function Pubkey() {
 }
 
 interface PubkeyRowProps {
-  action: "add" | "delete";
+  id: string;
   index: number;
   control: Control<Schema>;
-  append: UseFieldArrayAppend<Schema>;
   remove: UseFieldArrayRemove;
 }
 
-const PubkeyRow = ({
-  action,
-  control,
-  index,
-  append,
-  remove,
-}: PubkeyRowProps) => {
-  let button: ReactElement;
-  switch (action) {
-    case "add":
-      button = (
-        <Button
-          type="button"
-          variant="contained"
-          color="secondary"
-          onClick={() => append({ value: "" })}
-        >
-          Add
-        </Button>
-      );
-      break;
-    case "delete":
-      button = (
-        <Button
-          type="button"
-          variant="contained"
-          color="error"
-          onClick={() => remove(index)}
-        >
-          Delete
-        </Button>
-      );
-      break;
-  }
+const PubkeyRow = ({ id, control, index, remove }: PubkeyRowProps) => {
+  let button: ReactElement = (
+    <Button
+      type="button"
+      variant="contained"
+      color="error"
+      sx={{ display: "flex", gap: 0.3, paddingRight: "1.5em" }}
+      onClick={() => remove(index)}
+    >
+      <Delete /> DELETE
+    </Button>
+  );
 
   return (
     <Controller
       name={`pubkeys.${index}.value`}
-      key={index}
+      key={id}
       control={control}
       render={({ field, fieldState }) => (
         <Stack direction="row" spacing={2} width="100%">
