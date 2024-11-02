@@ -24,7 +24,7 @@ export const GET = async (
 export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   const userID = req.headers.get(HEADER_USERID);
   if (userID === null) {
-    console.error("GET /api/pubkey: userID not found in header");
+    console.error("PUT /api/pubkey: userID not found in header");
     return new NextResponse(null, { status: statusUnauthorized });
   }
 
@@ -36,7 +36,10 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
-  await ldap.replacePubkeys(userID, pubkeys);
+  // Deduplicate public keys
+  const dedupPubkeys = Array.from(new Set(pubkeys));
+
+  await ldap.replacePubkeys(userID, dedupPubkeys);
   return NextResponse.json({ success: true, pubkeys });
 };
 
