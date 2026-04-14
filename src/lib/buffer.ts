@@ -3,7 +3,7 @@ export const bufferToArrayBuffer = (buff: Buffer): ArrayBuffer => {
     buff.byteOffset,
     buff.byteOffset + buff.byteLength
   );
-  return arr;
+  return arr as ArrayBuffer;
 };
 
 export const arrayBufferToBuffer = (arr: ArrayBuffer): Buffer => {

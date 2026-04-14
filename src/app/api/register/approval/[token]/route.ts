@@ -16,8 +16,10 @@ type PathParams = {
 
 export const POST = async (
   req: NextRequest,
-  { params: { token } }: { params: PathParams }
+  { params }: { params: Promise<PathParams> }
 ): Promise<NextResponse> => {
+  const { token } = await params;
+
   if (typeof token !== "string") {
     console.log({ token });
     return NextResponse.json(
@@ -61,8 +63,10 @@ const applicationToParams = (application: Application): AddUserParams => {
 
 export const DELETE = async (
   req: NextRequest,
-  { params: { token } }: { params: PathParams }
+  { params }: { params: Promise<PathParams> }
 ): Promise<NextResponse> => {
+  const { token } = await params;
+
   if (typeof token !== "string") {
     console.log({ token });
     return NextResponse.json(

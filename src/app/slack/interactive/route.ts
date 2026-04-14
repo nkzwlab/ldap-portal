@@ -33,7 +33,7 @@ type Body =
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const body = await req.clone().text();
   const formData = await req.formData();
-  const requestHeaders = headers();
+  const requestHeaders = await headers();
 
   const { slackSigningSecret: signingSecret } = env;
   const requestSignature = requestHeaders.get(HEADER_NAME_SLACK_SIGNATURE);

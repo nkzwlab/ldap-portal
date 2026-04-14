@@ -15,14 +15,17 @@ export const newPasswordSchema = z
   )
   .max(256, { message: "Password is too long" });
 
-export const confirmPassword: z.SuperRefinement<{
-  newPassword: string;
-  newPasswordConfirmation: string;
-}> = ({ newPassword, newPasswordConfirmation }, ctx) => {
+export const confirmPassword = (
+  {
+    newPassword,
+    newPasswordConfirmation,
+  }: { newPassword: string; newPasswordConfirmation: string },
+  ctx: z.RefinementCtx
+) => {
   if (newPassword !== newPasswordConfirmation) {
     ctx.addIssue({
       path: ["newPasswordConfirmation"],
-      code: "custom",
+      code: z.ZodIssueCode.custom,
       message: "New password and new password confirmation do not match",
     });
   }

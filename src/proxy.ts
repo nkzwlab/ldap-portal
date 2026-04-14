@@ -31,7 +31,7 @@ const pathMatches = (paths: string[], targetPath: string): boolean => {
 const isUnauthenticatedPath = (path: string) =>
   pathMatches(unauthenticatedPaths, path);
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   if (isUnauthenticatedPath(path)) {
