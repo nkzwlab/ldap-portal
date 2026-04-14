@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   ## Development server ##
 
@@ -45,7 +43,7 @@ services:
       - ./data/https-portal/certs:/var/lib/https-portal
     environment:
       # For production, change here to "production" once it works
-      STAGE: staging
+      STAGE: production
       DOMAINS: >-
         ${DEPLOY_DOMAIN} -> http://server:3000
     env_file: .env

@@ -19,7 +19,7 @@ COPY ./package.json ./yarn.lock /src
 
 RUN yarn install
 
-COPY ./.env ./next-env.d.ts ./next.config.js ./tsconfig.json ./vitest.config.ts /src/
+COPY ./.env ./next.config.js ./tsconfig.json ./vitest.config.ts /src/
 COPY  /public /src/public
 COPY  /src /src/src
 RUN yarn run build
