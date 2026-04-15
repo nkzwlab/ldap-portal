@@ -9,6 +9,8 @@ export const translations = {
       logOutConfirm: "Are you sure you want to log out?",
     },
     home: {
+      linksSection: "Quick Links",
+      settingsSection: "Settings",
       vpn: {
         title: "JNNET VPN",
         description: "Go to JNNET VPN (WireGuard).",
@@ -107,6 +109,8 @@ export const translations = {
       logOutConfirm: "ログアウトしますか？",
     },
     home: {
+      linksSection: "クイックリンク",
+      settingsSection: "各種設定",
       vpn: {
         title: "JNNET VPN",
         description: "JNNETのVPN（WireGuard）に移動",
