@@ -19,12 +19,14 @@ import { ApiPasswordPutParams } from "../api/password/route";
 import { useRouter } from "next/navigation";
 import { statusUnauthorized } from "@/lib/http/status";
 import Alert from "@/lib/components/Alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const API_PATH_PASSWORD = "/api/password";
 
 export default function Login() {
+  const { t } = useLanguage();
+
   const [successOpen, setSuccessOpen] = React.useState(false);
-  const successMessage = "Updated password successfully.";
   const [errorOpen, setErrorOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -52,13 +54,13 @@ export default function Login() {
     } catch (err) {
       console.log({ err });
       let message =
-        (err as Error)?.message ?? "An error occured while authenticating";
+        (err as Error)?.message ?? t.password.errorGeneric;
 
       if (
         err instanceof AxiosError &&
         err.response?.status === statusUnauthorized
       ) {
-        message = "Invalid login name or password";
+        message = t.password.errorInvalidCredentials;
       } else if (resp?.data?.error) {
         message = resp.data.error;
       }
@@ -77,7 +79,7 @@ export default function Login() {
         </Avatar>
 
         <Typography variant="h5" component="h1">
-          Update Password
+          {t.password.title}
         </Typography>
 
         <Stack
@@ -96,7 +98,7 @@ export default function Login() {
                 {...field}
                 id="password"
                 type="password"
-                label="Current Password"
+                label={t.password.currentPassword}
                 required
                 fullWidth
                 autoComplete="password"
@@ -115,7 +117,7 @@ export default function Login() {
                 {...field}
                 id="newPassword"
                 type="password"
-                label="New Password"
+                label={t.password.newPassword}
                 required
                 fullWidth
                 autoComplete="new-password"
@@ -133,7 +135,7 @@ export default function Login() {
                 {...field}
                 id="newPasswordConfirmation"
                 type="password"
-                label="Confirm new password"
+                label={t.password.confirmPassword}
                 required
                 fullWidth
                 autoComplete="new-password"
@@ -149,7 +151,7 @@ export default function Login() {
             fullWidth
             disabled={isSubmitting}
           >
-            Submit
+            {t.password.submit}
           </Button>
         </Stack>
         <Alert
@@ -157,7 +159,7 @@ export default function Login() {
           handleClose={() => setSuccessOpen(false)}
           severity="success"
         >
-          {successMessage}
+          {t.password.successMessage}
         </Alert>
         <Alert
           open={errorOpen}

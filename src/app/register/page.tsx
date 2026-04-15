@@ -19,16 +19,16 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { type ApiRegisterParams } from "../api/register/route";
 import { useRouter } from "next/navigation";
 import Alert from "@/lib/components/Alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const API_PATH_REGISTER = "/api/register";
 
 const Register: NextPage = () => {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [successOpen, setSuccessOpen] = React.useState(false);
-  const [successMessage, setSuccessMessage] = React.useState(
-    "Registration form has been sent successfully. Redirecting to login page in 6s."
-  );
+  const [successMessage, setSuccessMessage] = React.useState("");
   const [errorOpen, setErrorOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -49,6 +49,7 @@ const Register: NextPage = () => {
     try {
       resp = await axios.post(API_PATH_REGISTER, params);
       if (resp?.data.success) {
+        setSuccessMessage(t.register.successMessage);
         setSuccessOpen(true);
         setTimeout(() => {
           router.push("/login");
@@ -63,14 +64,14 @@ const Register: NextPage = () => {
     } catch (err) {
       console.log({ err });
       let message =
-        (err as Error)?.message ?? "An error occured while submitting the form";
+        (err as Error)?.message ?? t.register.errorGeneric;
 
       if (err instanceof AxiosError && err.response?.data.error) {
         message = err.response.data.error;
       }
 
       if (err instanceof AxiosError && err.response?.status === 409) {
-        setErrorMessage("This login name is already registered. Redirecting to login page in 6s.");
+        setSuccessMessage(t.register.errorDuplicate);
         setSuccessOpen(true);
         setTimeout(() => {
           router.push("/login");
@@ -92,7 +93,7 @@ const Register: NextPage = () => {
         </Avatar>
 
         <Typography variant="h5" component="h1">
-          Registration
+          {t.register.title}
         </Typography>
 
         <Stack
@@ -111,7 +112,7 @@ const Register: NextPage = () => {
               <TextField
                 {...field}
                 id="loginName"
-                label="Login name"
+                label={t.register.loginName}
                 required
                 fullWidth
                 autoComplete="loginName"
@@ -131,7 +132,7 @@ const Register: NextPage = () => {
                 {...field}
                 id="newPassword"
                 type="password"
-                label="Password"
+                label={t.register.password}
                 required
                 fullWidth
                 autoComplete="password"
@@ -150,7 +151,7 @@ const Register: NextPage = () => {
                 {...field}
                 id="newPasswordConfirmation"
                 type="password"
-                label="Password confirmation"
+                label={t.register.passwordConfirmation}
                 required
                 fullWidth
                 error={fieldState.invalid}
@@ -165,7 +166,7 @@ const Register: NextPage = () => {
             fullWidth
             disabled={isSubmitting}
           >
-            Submit
+            {t.register.submit}
           </Button>
         </Stack>
         <Alert
@@ -184,8 +185,7 @@ const Register: NextPage = () => {
         </Alert>
 
         <Typography variant="body2" color="GrayText" align="center">
-          Your submission will be notified to the operators. Once operators
-          approved your application, you will be able to login to the service.
+          {t.register.notice}
         </Typography>
       </Stack>
     </Container>

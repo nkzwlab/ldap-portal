@@ -12,9 +12,11 @@ import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
 import { Container, CssBaseline, Stack } from "@mui/material";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Index() {
   const router = useRouter();
+  const { t } = useLanguage();
   return (
     <Container component="main" maxWidth="md">
       <CssBaseline />
@@ -22,41 +24,41 @@ export default function Index() {
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2">
-              パスワード変更
+              {t.home.password.title}
             </Typography>
             <Typography component="p">
-              Linux,vpn,sambaのパスワード変更。
+              {t.home.password.description}
             </Typography>
           </CardContent>
           <CardActions>
             <Button size="small" color="primary">
-              <Link href="/password">Password</Link>
+              <Link href="/password">{t.home.password.link}</Link>
             </Button>
           </CardActions>
         </Card>
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2">
-              シェル変更
+              {t.home.shell.title}
             </Typography>
-            <Typography component="p">Linuxのログインシェルの変更。</Typography>
+            <Typography component="p">{t.home.shell.description}</Typography>
           </CardContent>
           <CardActions>
             <Button size="small" color="primary">
-              <Link href="/shell">Shell</Link>
+              <Link href="/shell">{t.home.shell.link}</Link>
             </Button>
           </CardActions>
         </Card>
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2">
-              公開鍵登録
+              {t.home.pubkey.title}
             </Typography>
-            <Typography component="p">LinuxのSSHの公開鍵登録。</Typography>
+            <Typography component="p">{t.home.pubkey.description}</Typography>
           </CardContent>
           <CardActions>
             <Button size="small" color="primary">
-              <Link href="/pubkey">Pubkey</Link>
+              <Link href="/pubkey">{t.home.pubkey.link}</Link>
             </Button>
           </CardActions>
         </Card>

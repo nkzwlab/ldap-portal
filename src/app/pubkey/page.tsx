@@ -25,9 +25,11 @@ import { Schema, schema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePubkeys, usePutPubkey } from "@/lib/hooks/pubkey";
 import { Add, Delete } from "@mui/icons-material";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Pubkey() {
   const [alertOpen, setAlertOpen] = useState(false);
+  const { t } = useLanguage();
 
   const [currentPubkeys] = usePubkeys();
   const { putPubkeys, result } = usePutPubkey();
@@ -103,7 +105,7 @@ export default function Pubkey() {
       <CssBaseline />
       <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
         <Typography variant="h5" component="h1">
-          Add/Remove SSH public key
+          {t.pubkey.title}
         </Typography>
 
         <Stack
@@ -123,7 +125,7 @@ export default function Pubkey() {
             sx={{ display: "flex", paddingRight: "1.5em" }}
             onClick={() => append({ value: "" })}
           >
-            <Add /> Add
+            <Add /> {t.pubkey.add}
           </Button>
           <Button
             type="submit"
@@ -131,7 +133,7 @@ export default function Pubkey() {
             fullWidth
             disabled={isSubmitting}
           >
-            Submit
+            {t.pubkey.submit}
           </Button>
         </Stack>
         <Snackbar
@@ -145,7 +147,7 @@ export default function Pubkey() {
             variant="filled"
             sx={{ width: "100%" }}
           >
-            Updated SSH pubkeys successfully.
+            {t.pubkey.successMessage}
           </Alert>
         </Snackbar>
       </Stack>
@@ -161,6 +163,8 @@ interface PubkeyRowProps {
 }
 
 const PubkeyRow = ({ id, control, index, remove }: PubkeyRowProps) => {
+  const { t } = useLanguage();
+
   let button: ReactElement = (
     <Button
       type="button"
@@ -169,7 +173,7 @@ const PubkeyRow = ({ id, control, index, remove }: PubkeyRowProps) => {
       sx={{ display: "flex", gap: 0.3, paddingRight: "1.5em" }}
       onClick={() => remove(index)}
     >
-      <Delete /> DELETE
+      <Delete /> {t.pubkey.delete}
     </Button>
   );
 
@@ -183,7 +187,7 @@ const PubkeyRow = ({ id, control, index, remove }: PubkeyRowProps) => {
           <TextField
             {...field}
             id={`pubkeys-${index}`}
-            label={`Public key ${index + 1}`}
+            label={t.pubkey.publicKeyLabel(index + 1)}
             fullWidth
             type="text"
             autoComplete="publickey"

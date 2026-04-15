@@ -3,6 +3,7 @@ import * as React from "react";
 import {
   AppBar,
   Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -15,6 +16,7 @@ import { AccountCircle } from "@mui/icons-material";
 import axios from "axios";
 import { COOKIE_NAME_USERID } from "../auth/consts";
 import Cookies from "js-cookie";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function NavBar() {
   const loginName = Cookies.get(COOKIE_NAME_USERID);
@@ -22,9 +24,11 @@ export default function NavBar() {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
+  const { language, toggleLanguage, t } = useLanguage();
+
   const loggedInAsText = isLoggedIn
-    ? `Logged in as: ${loginName}`
-    : "Not logged in";
+    ? t.nav.loggedInAs(loginName!)
+    : t.nav.notLoggedIn;
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -36,7 +40,7 @@ export default function NavBar() {
 
   const handleLogout = () => {
     return new Promise(() => {
-      const sure = confirm("Are you sure you want to log out?");
+      const sure = confirm(t.nav.logOutConfirm);
 
       if (!sure) {
         setAnchorEl(null);
@@ -65,6 +69,13 @@ export default function NavBar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             LDAP Portal
           </Typography>
+          <Button
+            color="inherit"
+            onClick={toggleLanguage}
+            sx={{ mr: 1, border: "1px solid rgba(255,255,255,0.5)", minWidth: 48 }}
+          >
+            {language === "ja" ? "EN" : "JA"}
+          </Button>
           <div>
             <IconButton
               size="large"
@@ -94,7 +105,7 @@ export default function NavBar() {
               <MenuItem disabled={true}>{loggedInAsText}</MenuItem>
               {/* Call handleLogout indirectly because it takes too long time */}
               <MenuItem disabled={!isLoggedIn} onClick={() => handleLogout()}>
-                Log out
+                {t.nav.logOut}
               </MenuItem>
             </Menu>
           </div>

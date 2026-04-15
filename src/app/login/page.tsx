@@ -20,11 +20,13 @@ import { useRouter } from "next/navigation";
 import { statusUnauthorized } from "@/lib/http/status";
 import Alert from "@/lib/components/Alert";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const API_PATH_LOGIN = "/api/auth";
 
 export default function Login() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [errorOpen, setErrorOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -49,13 +51,13 @@ export default function Login() {
     } catch (err) {
       console.log({ err });
       let message =
-        (err as Error)?.message ?? "An error occured while authenticating";
+        (err as Error)?.message ?? t.login.errorGeneric;
 
       if (
         err instanceof AxiosError &&
         err.response?.status === statusUnauthorized
       ) {
-        message = "Invalid login name or password";
+        message = t.login.errorInvalidCredentials;
       } else if (resp?.data?.error) {
         message = resp.data.error;
       }
@@ -74,7 +76,7 @@ export default function Login() {
         </Avatar>
 
         <Typography variant="h5" component="h1">
-          Log in
+          {t.login.title}
         </Typography>
 
         <Stack
@@ -93,7 +95,7 @@ export default function Login() {
               <TextField
                 {...field}
                 id="loginName"
-                label="Login name"
+                label={t.login.loginName}
                 required
                 fullWidth
                 autoComplete="loginName"
@@ -113,7 +115,7 @@ export default function Login() {
                 {...field}
                 id="password"
                 type="password"
-                label="Password"
+                label={t.login.password}
                 required
                 fullWidth
                 autoComplete="password"
@@ -129,13 +131,13 @@ export default function Login() {
             fullWidth
             disabled={isSubmitting}
           >
-            Submit
+            {t.login.submit}
           </Button>
         </Stack>
         <Typography variant="body2" color="GrayText" align="center">
-          Don&apos;t have account yet?{" "}
+          {t.login.noAccount}{" "}
           <Link href="/register" style={{ textDecoration: "underline" }}>
-            Create an account
+            {t.login.createAccount}
           </Link>
         </Typography>
         <Alert

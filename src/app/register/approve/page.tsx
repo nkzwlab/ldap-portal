@@ -20,9 +20,11 @@ import { useApproval } from "@/lib/hooks/approval";
 import { SubmitHandler } from "react-hook-form";
 import { ApiActionButton } from "@/lib/components/ApiActionButton";
 import { useDecline } from "@/lib/hooks/decline";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Approve() {
   const applications = useApplications();
+  const { t } = useLanguage();
   console.log("Approve:", { applications });
 
   if (applications === null) {
@@ -36,7 +38,7 @@ export default function Approve() {
         <TableRow key={index}>
           <TableCell>{application.loginName}</TableCell>
           <TableCell align="right">
-            {application.email || "(Not entered)"}
+            {application.email || t.approve.noEmail}
           </TableCell>
           <TableCell align="right">
             <ApproveButton application={application} />
@@ -53,17 +55,17 @@ export default function Approve() {
       <CssBaseline />
       <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
         <Typography variant="h4" component="h1">
-          Approval
+          {t.approve.title}
         </Typography>
 
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: "sm" }} aria-label="user information">
             <TableHead>
               <TableRow>
-                <TableCell>Login name</TableCell>
-                <TableCell align="right">Email</TableCell>
-                <TableCell align="right">Approve</TableCell>
-                <TableCell align="right">Decline</TableCell>
+                <TableCell>{t.approve.loginName}</TableCell>
+                <TableCell align="right">{t.approve.email}</TableCell>
+                <TableCell align="right">{t.approve.approveHeader}</TableCell>
+                <TableCell align="right">{t.approve.declineHeader}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{rows}</TableBody>
@@ -78,28 +80,22 @@ interface ApplicationButtonProps {
   application: Application;
 }
 
-const formatSuccessMessage = (person: string) =>
-  `Approved application from ${person} successfully.`;
-const formatErrorMessage = (person: string, error?: string): string =>
-  typeof error !== "undefined"
-    ? `Failed to approve application from ${person}: ${error}`
-    : "";
-
 const ApproveButton = ({ application }: ApplicationButtonProps) => {
   const { approve, result, state, setState } = useApproval(application.token);
+  const { t } = useLanguage();
 
-  const successMessage = `Approved application from ${application.loginName} successfully.`;
+  const successMessage = t.approve.approveSuccess(application.loginName);
   const errorMessage =
     typeof result?.error !== "undefined"
-      ? `Failed to approve application from ${application.loginName}: ${result.error}`
+      ? t.approve.approveError(application.loginName, result.error)
       : "";
 
   const onSubmit: SubmitHandler<{}> = async () => {
     await approve();
   };
 
-  const doText = "Approve";
-  const doneText = "Approved";
+  const doText = t.approve.approveButton;
+  const doneText = t.approve.approvedButton;
 
   return (
     <ApiActionButton
@@ -118,19 +114,20 @@ const ApproveButton = ({ application }: ApplicationButtonProps) => {
 
 const DeclineButton = ({ application }: ApplicationButtonProps) => {
   const { decline, result, state, setState } = useDecline(application.token);
+  const { t } = useLanguage();
 
-  const successMessage = `Declined application from ${application.loginName}.`;
+  const successMessage = t.approve.declineSuccess(application.loginName);
   const errorMessage =
     typeof result?.error !== "undefined"
-      ? `Failed to decline application from ${application.loginName}: ${result.error}`
+      ? t.approve.declineError(application.loginName, result.error)
       : "";
 
   const onSubmit: SubmitHandler<{}> = async () => {
     await decline();
   };
 
-  const doText = "Decline";
-  const doneText = "Declined";
+  const doText = t.approve.declineButton;
+  const doneText = t.approve.declinedButton;
 
   return (
     <ApiActionButton

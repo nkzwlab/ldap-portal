@@ -21,9 +21,11 @@ import {
 import { Schema, schema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { shells } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Shell() {
   const [alertOpen, setAlertOpen] = useState(false);
+  const { t } = useLanguage();
 
   const [currentShell, reloadCurrentShell] = useShell();
 
@@ -81,7 +83,7 @@ export default function Shell() {
       <CssBaseline />
       <Stack alignItems="center" spacing={2} sx={{ marginTop: 8 }}>
         <Typography variant="h5" component="h1">
-          Change login shell
+          {t.shell.title}
         </Typography>
 
         <Stack
@@ -101,7 +103,7 @@ export default function Shell() {
                 <TextField
                   {...field}
                   id="loginName"
-                  label="Shell"
+                  label={t.shell.shellLabel}
                   select
                   required
                   fullWidth
@@ -120,7 +122,7 @@ export default function Shell() {
             fullWidth
             disabled={isSubmitting}
           >
-            Submit
+            {t.shell.submit}
           </Button>
         </Stack>
         <Snackbar
@@ -134,7 +136,7 @@ export default function Shell() {
             variant="filled"
             sx={{ width: "100%" }}
           >
-            Updated login shell successfully.
+            {t.shell.successMessage}
           </Alert>
         </Snackbar>
       </Stack>
