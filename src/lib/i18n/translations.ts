@@ -16,6 +16,11 @@ export const translations = {
         description: "Go to JNNET VPN (WireGuard).",
         link: "VPN",
       },
+      gpuTracker: {
+        title: "GPU Tracker",
+        description: "GPU usage across each server. (VPN required)",
+        link: "GPU Tracker",
+      },
       password: {
         title: "Password Change",
         description: "Change your Linux, VPN, and Samba password.",
@@ -115,6 +120,11 @@ export const translations = {
         title: "JNNET VPN",
         description: "JNNETのVPN（WireGuard）に移動",
         link: "VPN",
+      },
+      gpuTracker: {
+        title: "GPU Tracker",
+        description: "各GPUサーバーの使用状況ダッシュボード（要VPN）",
+        link: "GPU Tracker",
       },
       password: {
         title: "パスワード変更",

@@ -50,6 +50,7 @@ export default function Index() {
 
   const links: CardItem[] = [
     { label: t.home.vpn.title, description: t.home.vpn.description, href: "https://vpn.jn.sfc.keio.ac.jp/", external: true },
+    { label: t.home.gpuTracker.title, description: t.home.gpuTracker.description, href: "http://gpu-tracker.jn.sfc.keio.ac.jp/", external: true },
   ];
 
   const settings: CardItem[] = [
