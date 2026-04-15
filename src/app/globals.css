@@ -82,6 +82,20 @@ input:not(:-webkit-autofill) {
   animation-name: mui-auto-fill-cancel;
 }
 
+/*
+ * CSS-only fallback: force MUI's floating label into the shrunk state when
+ * the browser autofills the input, even if the page has no focus yet.
+ * Uses :has() to detect autofill without JavaScript.
+ */
+.MuiFormControl-root:has(input:-webkit-autofill) .MuiInputLabel-root {
+  transform: translate(14px, -9px) scale(0.75);
+  max-width: calc(133% - 32px);
+}
+
+.MuiFormControl-root:has(input:-webkit-autofill) .MuiOutlinedInput-notchedOutline legend {
+  max-width: 100%;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
