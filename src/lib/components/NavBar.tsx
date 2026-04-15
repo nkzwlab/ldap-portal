@@ -41,17 +41,16 @@ export default function NavBar() {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    return new Promise(() => {
-      const sure = confirm(t.nav.logOutConfirm);
+  const handleLogout = async () => {
+    const sure = confirm(t.nav.logOutConfirm);
 
-      if (!sure) {
-        setAnchorEl(null);
-        return;
-      }
+    if (!sure) {
+      setAnchorEl(null);
+      return;
+    }
 
-      axios.post("/api/auth/logout");
-    });
+    await axios.post("/api/auth/logout");
+    window.location.href = "/login";
   };
 
   return (
