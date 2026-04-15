@@ -54,7 +54,7 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   const dedupPubkeys = Array.from(new Set(parsed.data.pubkeys));
 
   await ldap.replacePubkeys(userID, dedupPubkeys);
-  return NextResponse.json({ success: true, pubkeys });
+  return NextResponse.json({ success: true, pubkeys: dedupPubkeys });
 };
 
 export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
