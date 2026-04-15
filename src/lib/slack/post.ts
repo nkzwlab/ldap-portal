@@ -92,7 +92,7 @@ export const notifyApproval = async (
         type: "header",
         text: {
           type: "plain_text",
-          text: "Application was approwed",
+          text: "Application was approved",
           emoji: true,
         },
       },
