@@ -9,6 +9,11 @@ export const translations = {
       logOutConfirm: "Are you sure you want to log out?",
     },
     home: {
+      vpn: {
+        title: "JNNET VPN",
+        description: "Go to JNNET VPN (WireGuard).",
+        link: "VPN",
+      },
       password: {
         title: "Password Change",
         description: "Change your Linux, VPN, and Samba password.",
@@ -102,19 +107,24 @@ export const translations = {
       logOutConfirm: "ログアウトしますか？",
     },
     home: {
+      vpn: {
+        title: "JNNET VPN",
+        description: "JNNETのVPN（WireGuard）に移動",
+        link: "VPN",
+      },
       password: {
         title: "パスワード変更",
-        description: "Linux、VPN、Sambaのパスワード変更。",
+        description: "Linux、VPN、Sambaのパスワード変更",
         link: "パスワード",
       },
       shell: {
         title: "シェル変更",
-        description: "Linuxのログインシェルの変更。",
+        description: "Linuxのログインシェルの変更",
         link: "シェル",
       },
       pubkey: {
         title: "公開鍵登録",
-        description: "LinuxのSSHの公開鍵登録。",
+        description: "LinuxのSSHの公開鍵登録",
         link: "公開鍵",
       },
     },

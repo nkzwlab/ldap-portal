@@ -4,65 +4,48 @@ import React from "react";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
+import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
 
-import styles from "./page.module.css";
-import { useRouter } from "next/navigation";
-import { Container, CssBaseline, Stack } from "@mui/material";
-import Link from "next/link";
+import { Container, CssBaseline } from "@mui/material";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Index() {
-  const router = useRouter();
   const { t } = useLanguage();
+
+  const cards = [
+    { label: t.home.vpn.title, description: t.home.vpn.description, href: "https://vpn.jn.sfc.keio.ac.jp/", external: true },
+    { label: t.home.password.title, description: t.home.password.description, href: "/password", external: false },
+    { label: t.home.shell.title, description: t.home.shell.description, href: "/shell", external: false },
+    { label: t.home.pubkey.title, description: t.home.pubkey.description, href: "/pubkey", external: false },
+  ];
+
   return (
-    <Container component="main" maxWidth="md">
+    <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <Stack direction="row" spacing={4} sx={{ marginTop: 8 }}>
-        <Card>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              {t.home.password.title}
-            </Typography>
-            <Typography component="p">
-              {t.home.password.description}
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small" color="primary">
-              <Link href="/password">{t.home.password.link}</Link>
-            </Button>
-          </CardActions>
-        </Card>
-        <Card>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              {t.home.shell.title}
-            </Typography>
-            <Typography component="p">{t.home.shell.description}</Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small" color="primary">
-              <Link href="/shell">{t.home.shell.link}</Link>
-            </Button>
-          </CardActions>
-        </Card>
-        <Card>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              {t.home.pubkey.title}
-            </Typography>
-            <Typography component="p">{t.home.pubkey.description}</Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small" color="primary">
-              <Link href="/pubkey">{t.home.pubkey.link}</Link>
-            </Button>
-          </CardActions>
-        </Card>
-      </Stack>
+      <Grid container spacing={3} sx={{ marginTop: 6 }}>
+        {cards.map(({ label, description, href, external }) => (
+          <Grid item xs={12} sm={6} lg={3} key={label}>
+            <Card sx={{ height: "100%" }}>
+              <CardActionArea
+                component="a"
+                href={href}
+                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                sx={{ height: "100%" }}
+              >
+                <CardContent sx={{ pb: 8 }}>
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {label}
+                  </Typography>
+                  <Typography component="p" color="text.secondary">
+                    {description}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Container>
   );
 }
