@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const passwordHash = ssha.passwd;
   const application: Application = {
     loginName,
-    email,
+    email: email ?? "",
     passwordHash,
     token,
   };
