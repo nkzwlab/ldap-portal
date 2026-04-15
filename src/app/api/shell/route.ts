@@ -1,4 +1,5 @@
 import { HEADER_USERID } from "@/lib/auth/consts";
+import { isCurrentSessionBlacklisted } from "@/lib/auth/tokenBlacklist";
 import { statusBadRequest, statusUnauthorized } from "@/lib/http/status";
 import * as ldap from "@/lib/ldap";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,6 +17,10 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
 };
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
+  if (await isCurrentSessionBlacklisted()) {
+    return new NextResponse(null, { status: statusUnauthorized });
+  }
+
   const userID = req.headers.get(HEADER_USERID);
   if (userID === null) {
     console.error("GET /api/shell: userID not found in header");

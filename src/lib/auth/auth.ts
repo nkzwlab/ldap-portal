@@ -19,6 +19,8 @@ export const verifyToken = async (jwtString: string): Promise<Payload> => {
   }
 };
 
+export const JWT_EXPIRY = "24h";
+
 export const signToken = async (userID: string): Promise<string> => {
   const payload: Payload = {
     userID,
@@ -29,6 +31,7 @@ export const signToken = async (userID: string): Promise<string> => {
       alg: jwtSignAlgorithm,
     })
     .setIssuedAt()
+    .setExpirationTime(JWT_EXPIRY)
     .sign(secret);
 
   return jwt;
