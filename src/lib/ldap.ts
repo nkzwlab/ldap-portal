@@ -42,6 +42,20 @@ const DEFAULT_OBJECT_CLASSES = [
 const SEARCH_BASE_DN = `ou=People,${domain}`;
 const GROUP_SEARCH_BASE_DN = `ou=Groups,${domain}`;
 
+/**
+ * Escapes special characters in LDAP filter values per RFC 4515.
+ * Prevents LDAP injection attacks by sanitizing user-supplied input
+ * before embedding it in LDAP search filters.
+ */
+function escapeLdapFilterValue(value: string): string {
+  return value
+    .replace(/\\/g, "\\5c")
+    .replace(/\*/g, "\\2a")
+    .replace(/\(/g, "\\28")
+    .replace(/\)/g, "\\29")
+    .replace(/\0/g, "\\00");
+}
+
 const OPERATION_REPLACE = "replace";
 const OPERATION_ADD = "add";
 const OPERATION_DELETE = "delete";
@@ -199,7 +213,7 @@ export async function isUserInGroup(
   const client = createClient(ldapOption);
   // Serach for groups, that its name iss `groupName` and it includes the user
   // with id `userID` as a member
-  const filter = `(&(memberUid=${userID})(cn=${groupName}))`;
+  const filter = `(&(memberUid=${escapeLdapFilterValue(userID)})(cn=${escapeLdapFilterValue(groupName)}))`;
   // I don't know why but we seem to need 'sub' (=2) scope to secrah groups
   const options: SearchOptions = {
     scope: "sub",
@@ -230,7 +244,7 @@ export async function searchUser(userID: string): Promise<SearchEntryObject[]> {
     const entry = await searchEntries(
       client,
       SEARCH_BASE_DN,
-      `(&(uid=${userID})(uidNumber=*))`, // Search for entries thaat with the given login name and has uidNumber
+      `(&(uid=${escapeLdapFilterValue(userID)})(uidNumber=*))`, // Search for entries thaat with the given login name and has uidNumber
       { scope: "sub" }
     );
 
@@ -252,7 +266,7 @@ export async function searchEmptyUser(
     const entry = await searchEntries(
       client,
       SEARCH_BASE_DN,
-      `(&(uid=${userID})(!(uidNumber=*)))`, // Search for entries thaat with the given login name and without uiddNumber
+      `(&(uid=${escapeLdapFilterValue(userID)})(!(uidNumber=*)))`, // Search for entries thaat with the given login name and without uiddNumber
       { scope: "sub" }
     );
 
