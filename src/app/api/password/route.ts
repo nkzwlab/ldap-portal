@@ -1,4 +1,8 @@
-import { statusBadRequest, statusUnauthorized } from "@/lib/http/status";
+import {
+  statusBadRequest,
+  statusInternalServerError,
+  statusUnauthorized,
+} from "@/lib/http/status";
 import { NextRequest, NextResponse } from "next/server";
 
 import * as ldap from "@/lib/ldap";
@@ -42,10 +46,19 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   try {
     success = await ldap.changePassword(userID, password, newPassword);
   } catch (e) {
-    return NextResponse.json({
-      success: false,
-      error: (e as any)?.message ?? "Unexpected LDAP error",
-    });
+    const isInvalidPassword =
+      (e as any)?.message === "invalid old password";
+    if (isInvalidPassword) {
+      return NextResponse.json(
+        { success: false, error: "Current password is incorrect" },
+        { status: statusUnauthorized }
+      );
+    }
+    console.error("PUT /api/password: LDAP error:", e);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: statusInternalServerError }
+    );
   }
 
   return NextResponse.json({ success });

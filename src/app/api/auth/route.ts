@@ -41,13 +41,16 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
       setCookie(res, COOKIE_NAME_USERID, loginName, { httpOnly: false });
       return res;
     } else {
-      const err = new Error("invalid userID or password");
-      const res = NextResponse.json(err, { status: statusUnauthorized });
-      return res;
+      return NextResponse.json(
+        { error: "Invalid username or password" },
+        { status: statusUnauthorized }
+      );
     }
   } catch (err) {
     console.error("POST /api/auth: An error occured:", err);
-    const res = NextResponse.json(err, { status: statusInternalServerError });
-    return res;
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: statusInternalServerError }
+    );
   }
 };
