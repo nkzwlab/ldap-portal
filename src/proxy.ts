@@ -91,6 +91,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // ローカル開発環境でのログインスキップ
+  if (process.env.DEV_BYPASS_AUTH === "true" && process.env.NODE_ENV !== "production") {
+    const devUserId = process.env.DEV_USER_ID ?? "devuser";
+    const headers = new Headers(req.headers);
+    headers.set(HEADER_USERID, devUserId);
+    return NextResponse.next({ headers });
+  }
+
   const loginUrl = req.nextUrl.clone();
   loginUrl.pathname = "/login";
 
