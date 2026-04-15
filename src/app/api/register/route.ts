@@ -78,14 +78,11 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     passwordHash,
     token,
   };
-  console.log({ application });
   const applicationWithoutUndefined = removeUndefinedProperty(application);
 
   await repository.addEntry(token, applicationWithoutUndefined);
 
-  console.log("POST /api/register: Notifying to Slack...");
-  const result = await notifyApplication(application);
-  console.log("POST /api/register: Notification result:", result);
+  await notifyApplication(application);
 
   return NextResponse.json({ success: true }, { status: statusOk });
 };

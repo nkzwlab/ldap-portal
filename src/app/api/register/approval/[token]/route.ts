@@ -21,7 +21,6 @@ export const POST = async (
   const { token } = await params;
 
   if (typeof token !== "string") {
-    console.log({ token });
     return NextResponse.json(
       { error: "invalid token" },
       { status: statusBadRequest }
@@ -47,16 +46,12 @@ export const POST = async (
 };
 
 const applicationToParams = (application: Application): AddUserParams => {
-  console.log("applicationToParams: converting application:", application);
-
   const { loginName, email, passwordHash } = application;
   const params: AddUserParams = {
     loginName,
     email,
     passwd: passwordHash,
   };
-
-  console.log("applicationToParams: output params:", params);
 
   return params;
 };
@@ -68,7 +63,6 @@ export const DELETE = async (
   const { token } = await params;
 
   if (typeof token !== "string") {
-    console.log({ token });
     return NextResponse.json(
       { error: "invalid token" },
       { status: statusBadRequest }

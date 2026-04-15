@@ -285,8 +285,6 @@ export const fetchGreatestUidNumber = async (
     scope: "sub",
   });
 
-  console.log("fetchGreatestUidNumber:", { entries });
-
   const largestUid = entries
     .map((entry) => toUidNumber(entry))
     .filter((uidNumber) => uidNumber !== null && !Number.isNaN(uidNumber))
@@ -336,7 +334,6 @@ export const setDefaultUserParams = async (
   client: LdapClient,
   params: AddUserParams
 ): Promise<AddUserParams> => {
-  console.log("setDefaultUserParams: setting default params on:", params);
   const uidNumber = (await fetchGreatestUidNumber(client)) + 1;
   const gidNumber = env.defaultGidNumber;
   const homeDirectory = `/home/${params.loginName}`;
@@ -358,7 +355,6 @@ export const setDefaultUserParams = async (
     ...params,
   };
 
-  console.log("setDefaultUserParams: output:", out);
   return out;
 };
 
@@ -377,7 +373,7 @@ export async function addUser(
       try {
         const entry = await searchEmptyUser(params.loginName);
         if (entry.length > 0) {
-          console.log("addUser: Deleting pre-existing empty entry:", entry);
+          console.log("addUser: Deleting pre-existing empty entry");
           const { objectName } = entry[0];
           const dn =
             typeof objectName === "object" ? objectName[0] : objectName;
@@ -402,8 +398,6 @@ export async function addUser(
       mail: params.email,
       [ATTRIBUTE_PASSWORD]: params.passwd,
     };
-    console.log("addUser: saving entry:", entry);
-
     return await addEntry(client, dn, entry);
   } catch (err) {
     throw err;
@@ -463,7 +457,6 @@ async function addEntry(
   dn: string,
   entry: any
 ): Promise<boolean> {
-  console.log({ entry });
   return new Promise((resolve, reject) => {
     client.add(dn, entry, (err) => {
       if (err) {

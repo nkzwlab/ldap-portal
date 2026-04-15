@@ -39,9 +39,7 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
 
   async addEntry(key: string, entry: T): Promise<void> {
     const physicalKey = this.internalKey(key);
-    console.log(`addEntry: adding "${physicalKey}" = ${JSON.stringify(entry)}`);
-    const fieldsAdded = await this.client.hSet(physicalKey, entry);
-    console.log(`addEntry: added fields: ${fieldsAdded}`);
+    await this.client.hSet(physicalKey, entry);
   }
 
   // Get entry from Redis server.
@@ -56,16 +54,12 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
   async getAllEntries(): Promise<T[]> {
     const query = `${this.prefix}*`;
     const keys = await this.client.keys(query);
-    console.log("getAllEntrries:", { keys });
     if (keys.length <= 0) {
-      console.log("getAllEntrries: keys are 0 length. Retuning empty array.");
       return [];
     }
 
     const getAllPromises = keys.map((key) => this.client.hGetAll(key));
     const entries = await Promise.all(getAllPromises);
-
-    console.log("getAllEntrries:", { entries });
 
     const nonEmptyEntries = entries.filter((v) => v !== null) as T[];
     return nonEmptyEntries;
@@ -73,10 +67,7 @@ export class RedisRepository<T extends {}> implements AbstractRepository<T> {
 
   async deleteEntry(loginName: string): Promise<void> {
     const physicalKey = this.internalKey(loginName);
-    const removedCount = await this.client.del(physicalKey);
-    console.log(
-      `deleteEntry: deleted ${removedCount} entries for key "${loginName}"`
-    );
+    await this.client.del(physicalKey);
   }
 
   get prefix(): string {

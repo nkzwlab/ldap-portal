@@ -38,11 +38,8 @@ export class RedisApplicationRepository
   }
 
   async getApplicationByToken(token: string): Promise<Application | null> {
-    console.log(`searching entry for token: '${token}'`);
     const physicalKey = this.internalKey(token);
     const result = await this.client.hGetAll(physicalKey);
-    console.log("got search result:", { result });
-
     return applicationFromJson(result);
   }
 
@@ -100,8 +97,6 @@ export class RedisApplicationRepository
       `@loginName:{${escaped}}`,
       options
     );
-
-    console.log("getApplicationByLoginName: response =", res);
 
     if (res.total < 1 || res.documents.length < 1) {
       return null;
