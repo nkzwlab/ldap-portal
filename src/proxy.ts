@@ -35,7 +35,7 @@ function isRateLimited(
 const unauthenticatedPaths = [
   "/_next/",
   "/favicon.ico",
-  "/nakazawa-okoshi-lab-logo.svg",
+  "/nakazawa-okoshi-lab-logo.png",
   "/api/auth",
   "/api/register",
   "/api/register/approval/",

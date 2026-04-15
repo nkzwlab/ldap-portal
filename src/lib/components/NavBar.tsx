@@ -10,7 +10,6 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
 import Link from "next/link";
 import { AccountCircle } from "@mui/icons-material";
 import axios from "axios";
@@ -64,14 +63,21 @@ export default function NavBar() {
             edge="start"
             color="inherit"
             aria-label="home"
-            sx={{ mr: 2 }}
+            sx={{ mr: 2, p: 1 }}
           >
-            <Link href="/" prefetch={false}>
-              <HomeIcon />
+            <Link href="/" prefetch={false} style={{ display: "flex" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/nakazawa-okoshi-lab-logo.png"
+                alt="Nakazawa & Okoshi Lab"
+                width={40}
+                height={40}
+                style={{ display: "block", objectFit: "contain" }}
+              />
             </Link>
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            LDAP Portal
+            JN LDAP Portal
           </Typography>
           <Button
             color="inherit"

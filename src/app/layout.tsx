@@ -6,8 +6,8 @@ import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "LDAP Portal",
-  description: "LDAP Portal",
+  title: "JN LDAP Portal",
+  description: "JN LDAP Portal",
 };
 
 export default function RootLayout({
