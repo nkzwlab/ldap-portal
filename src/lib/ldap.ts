@@ -1,5 +1,5 @@
 import ldap, {
-  createClient,
+  createClient as ldapCreateClient,
   Change,
   type Change as ChangeOptions,
   Client as LdapClient,
@@ -16,6 +16,17 @@ import { toUidNumber } from "./ldap/utils";
 import { emailFromLoginName } from "./email";
 
 const { ldapOption, domain, adminCN, password: adminPassword } = env;
+
+function createClient(option: { url: string }): LdapClient {
+  const client = ldapCreateClient(option);
+  // Prevent TLS/connection errors from becoming uncaughtException.
+  // Without this handler, ldapjs emits an 'error' event that escapes
+  // the Promise chain and crashes the process.
+  client.on("error", (err) => {
+    console.error("LDAP client error:", err);
+  });
+  return client;
+}
 
 const ATTRIBUTE_PUBKEY = "sshPublicKey";
 const ATTRIBUTE_SHELL = "loginShell";
