@@ -22,13 +22,24 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     );
   }
 
-  const existingUsers = await searchUser(loginName);
-  if (existingUsers.length > 0) {
-    console.warn(
-      `POST /api/register: User ${loginName} already exists. Discarding the application`
+  try {
+    const existingUsers = await searchUser(loginName);
+    if (existingUsers.length > 0) {
+      console.warn(
+        `POST /api/register: User ${loginName} already exists. Discarding the application`
+      );
+      await notifyDuplication(loginName);
+      return NextResponse.json({ success: true }, { status: statusOk });
+    }
+  } catch (err) {
+    console.error(
+      `POST /api/register: Failed to search LDAP user ${loginName}:`,
+      err
     );
-    await notifyDuplication(loginName);
-    return NextResponse.json({ success: true }, { status: statusOk });
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
 
   const repository = await getRepository();
