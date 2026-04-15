@@ -49,7 +49,11 @@ export default function NavBar() {
       return;
     }
 
-    await axios.post("/api/auth/logout");
+    try {
+      await axios.post("/api/auth/logout");
+    } catch {
+      // ignore redirect errors
+    }
     window.location.href = "/login";
   };
 
