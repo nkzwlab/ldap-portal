@@ -4,9 +4,38 @@ import type { NextRequest } from "next/server";
 import { Payload, verifyToken } from "./lib/auth/auth";
 import { COOKIE_NAME_TOKEN, HEADER_USERID } from "./lib/auth/consts";
 
+// In-memory rate limiter (per-instance; suitable for single-server deployments).
+// Key: "<ip>:<path-group>", Value: { count, resetAt timestamp }
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(
+  key: string,
+  maxRequests: number,
+  windowMs: number
+): boolean {
+  const now = Date.now();
+
+  // Evict expired entries to prevent unbounded memory growth
+  if (rateLimitStore.size > 2000) {
+    for (const [k, v] of rateLimitStore.entries()) {
+      if (now > v.resetAt) rateLimitStore.delete(k);
+    }
+  }
+
+  const entry = rateLimitStore.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+  if (entry.count >= maxRequests) return true;
+  entry.count++;
+  return false;
+}
+
 const unauthenticatedPaths = [
   "/_next/",
   "/favicon.ico",
+  "/nakazawa-okoshi-lab-logo.svg",
   "/api/auth",
   "/api/register",
   "/api/register/approval/",
@@ -33,6 +62,30 @@ const isUnauthenticatedPath = (path: string) =>
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
+
+  // Rate limit: login — 10 attempts per 15 min
+  if (path === "/api/auth" && req.method === "POST") {
+    if (isRateLimited(`login:${ip}`, 10, 15 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+  }
+
+  // Rate limit: registration — 5 attempts per hour
+  if (path === "/api/register" && req.method === "POST") {
+    if (isRateLimited(`register:${ip}`, 5, 60 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+  }
 
   if (isUnauthenticatedPath(path)) {
     return NextResponse.next();
