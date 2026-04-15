@@ -21,6 +21,11 @@ export const translations = {
         description: "GPU usage across each server. (VPN required)",
         link: "GPU Tracker",
       },
+      wiki: {
+        title: "JNOKLab Wiki",
+        description: "Wiki for Nakazawa-Okoshi Lab. (VPN required)",
+        link: "Wiki",
+      },
       password: {
         title: "Password Change",
         description: "Change your Linux, VPN, and Samba password.",
@@ -125,6 +130,11 @@ export const translations = {
         title: "GPU Tracker",
         description: "各GPUサーバーの使用状況ダッシュボード（要VPN）",
         link: "GPU Tracker",
+      },
+      wiki: {
+        title: "JNOKLab Wiki",
+        description: "中澤・大越研のWiki（要VPN）",
+        link: "Wiki",
       },
       password: {
         title: "パスワード変更",
