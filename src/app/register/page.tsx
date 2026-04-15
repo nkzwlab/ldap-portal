@@ -70,7 +70,7 @@ const Register: NextPage = () => {
       }
 
       if (err instanceof AxiosError && err.response?.status === 409) {
-        setSuccessMessage("This login name is already registered. Redirecting to login page in 6s.");
+        setErrorMessage("This login name is already registered. Redirecting to login page in 6s.");
         setSuccessOpen(true);
         setTimeout(() => {
           router.push("/login");
