@@ -35,7 +35,7 @@ export default function Login() {
     control,
     handleSubmit,
     formState: { isSubmitting, isSubmitted },
-  } = useForm<Schema>({ resolver: zodResolver(schema) });
+  } = useForm<Schema>({ resolver: zodResolver(schema), defaultValues: { loginName: "", password: "" } });
 
   const onSubmit: SubmitHandler<Schema> = async ({ loginName, password }) => {
     console.log("on submit");

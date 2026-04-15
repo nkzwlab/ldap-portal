@@ -19,10 +19,14 @@ import Cookies from "js-cookie";
 import { useLanguage } from "../i18n/LanguageContext";
 
 export default function NavBar() {
-  const loginName = Cookies.get(COOKIE_NAME_USERID);
+  const [loginName, setLoginName] = React.useState<string | undefined>(undefined);
   const isLoggedIn = typeof loginName !== "undefined";
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  React.useEffect(() => {
+    setLoginName(Cookies.get(COOKIE_NAME_USERID));
+  }, []);
 
   const { language, toggleLanguage, t } = useLanguage();
 
