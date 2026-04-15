@@ -1,5 +1,11 @@
 import * as z from "zod";
 
+export const loginNameSchema = z
+  .string()
+  .min(1, { message: "Login name is required" })
+  .max(64, { message: "Login name is too long" })
+  .regex(/^[0-9A-Za-z_-]+$/, "Login name contains invalid character");
+
 export const passwordSchema = z
   .string()
   .max(256, { message: "Password is too long" });

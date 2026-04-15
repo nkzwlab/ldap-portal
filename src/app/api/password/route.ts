@@ -4,11 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import * as ldap from "@/lib/ldap";
 import { HEADER_USERID } from "@/lib/auth/consts";
 import { isCurrentSessionBlacklisted } from "@/lib/auth/tokenBlacklist";
+import { newPasswordSchema, passwordSchema } from "@/lib/schemas";
+import * as z from "zod";
 
 export type ApiPasswordPutParams = {
   password: string;
   newPassword: string;
 };
+
+const passwordChangeSchema = z.object({
+  password: passwordSchema,
+  newPassword: newPasswordSchema,
+});
 
 export const PUT = async (req: NextRequest): Promise<NextResponse> => {
   if (await isCurrentSessionBlacklisted()) {
@@ -21,14 +28,15 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
     return new NextResponse(null, { status: statusUnauthorized });
   }
 
-  const { password, newPassword } = (await req.json()) as ApiPasswordPutParams;
-
-  if (typeof password !== "string" || typeof newPassword !== "string") {
+  const body = await req.json();
+  const parsed = passwordChangeSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "invalid password or new password" },
+      { error: "Invalid input" },
       { status: statusBadRequest }
     );
   }
+  const { password, newPassword } = parsed.data;
 
   let success = false;
   try {

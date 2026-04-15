@@ -2,9 +2,11 @@ import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
 import { statusBadRequest, statusConflict, statusOk } from "@/lib/http/status";
 import { searchUser } from "@/lib/ldap";
+import { loginNameSchema, newPasswordSchema } from "@/lib/schemas";
 import { notifyApplication, notifyDuplication } from "@/lib/slack/post";
 import { removeUndefinedProperty } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+import * as z from "zod";
 
 export type ApiRegisterParams = {
   loginName: string;
@@ -12,15 +14,22 @@ export type ApiRegisterParams = {
   password: string;
 };
 
-export const POST = async (req: NextRequest): Promise<NextResponse> => {
-  const { loginName, email, password } = await req.json();
+const registerSchema = z.object({
+  loginName: loginNameSchema,
+  email: z.string().email().optional().or(z.literal("")),
+  password: newPasswordSchema,
+});
 
-  if (typeof loginName !== "string" || typeof password !== "string") {
+export const POST = async (req: NextRequest): Promise<NextResponse> => {
+  const body = await req.json();
+  const parsed = registerSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "invalid loginName or email or password" },
+      { error: "Invalid input" },
       { status: statusBadRequest }
     );
   }
+  const { loginName, email, password } = parsed.data;
 
   try {
     const existingUsers = await searchUser(loginName);
