@@ -102,6 +102,10 @@ export default function Login() {
                 autoFocus
                 error={fieldState.invalid}
                 helperText={fieldState.error?.message}
+                sx={{
+                  "& .MuiInputBase-input": { color: "text.primary" },
+                  "& .MuiOutlinedInput-root": { backgroundColor: "background.paper" },
+                }}
               ></TextField>
             )}
           />
@@ -121,6 +125,10 @@ export default function Login() {
                 autoComplete="password"
                 error={fieldState.invalid}
                 helperText={fieldState.error?.message}
+                sx={{
+                  "& .MuiInputBase-input": { color: "text.primary" },
+                  "& .MuiOutlinedInput-root": { backgroundColor: "background.paper" },
+                }}
               ></TextField>
             )}
           />
