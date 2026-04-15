@@ -1,6 +1,6 @@
 import { SSHA, generateToken } from "@/lib/crypto";
 import { Application, getRepository } from "@/lib/database/application";
-import { statusBadRequest, statusOk } from "@/lib/http/status";
+import { statusBadRequest, statusConflict, statusOk } from "@/lib/http/status";
 import { searchUser } from "@/lib/ldap";
 import { notifyApplication, notifyDuplication } from "@/lib/slack/post";
 import { removeUndefinedProperty } from "@/lib/utils";
@@ -29,7 +29,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
         `POST /api/register: User ${loginName} already exists. Discarding the application`
       );
       await notifyDuplication(loginName);
-      return NextResponse.json({ success: true }, { status: statusOk });
+      return NextResponse.json(
+        { success: false, error: "This login name is already registered." },
+        { status: statusConflict }
+      );
     }
   } catch (err) {
     console.error(

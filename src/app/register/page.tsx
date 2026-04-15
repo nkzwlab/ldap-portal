@@ -26,8 +26,9 @@ const Register: NextPage = () => {
   const router = useRouter();
 
   const [successOpen, setSuccessOpen] = React.useState(false);
-  const successMessage =
-    "Registration form has been sent successfully. Redirecting to login page in 6s.";
+  const [successMessage, setSuccessMessage] = React.useState(
+    "Registration form has been sent successfully. Redirecting to login page in 6s."
+  );
   const [errorOpen, setErrorOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -66,6 +67,15 @@ const Register: NextPage = () => {
 
       if (err instanceof AxiosError && err.response?.data.error) {
         message = err.response.data.error;
+      }
+
+      if (err instanceof AxiosError && err.response?.status === 409) {
+        setSuccessMessage("This login name is already registered. Redirecting to login page in 6s.");
+        setSuccessOpen(true);
+        setTimeout(() => {
+          router.push("/login");
+        }, 6000);
+        return;
       }
 
       setErrorMessage(message);
